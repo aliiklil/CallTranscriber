@@ -29,10 +29,8 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
                 }
             }
         };
-
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-
     }
 
 }

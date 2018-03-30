@@ -1,6 +1,7 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.IBinder;
@@ -8,12 +9,16 @@ import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class RecordService extends Service {
 
-    public static final String STORAGE_DIRECTORY = "/sdcard/calltranscriber";
+    public static final String AUDIO_STORAGE_DIRECTORY = "/sdcard/calltranscriber";
+    public static final String CALL_INFO_STORAGE_FILE = "/sdcard/calltranscriber/callInfo";
 
     private MediaRecorder recorder = new MediaRecorder();
     private boolean isRecording = false;
@@ -26,7 +31,7 @@ public class RecordService extends Service {
             if (isRecording)
                 return START_NOT_STICKY;
 
-            File directory = new File(STORAGE_DIRECTORY);
+            File directory = new File(AUDIO_STORAGE_DIRECTORY);
 
             if (!directory.exists()) {
                 directory.mkdir();
@@ -71,6 +76,29 @@ public class RecordService extends Service {
             recorder.release();
 
         }
+
+        ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
+
+        try {
+            ObjectInputStream ois = new ObjectInputStream(getApplicationContext().openFileInput(CALL_INFO_STORAGE_FILE));
+            callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
+            ois.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        CallInfo callInfo = new CallInfo();
+
+        callInfoArrayList.add(callInfo);
+
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(getApplicationContext().openFileOutput(CALL_INFO_STORAGE_FILE, Context.MODE_PRIVATE));
+            oos.writeObject(callInfoArrayList);
+            oos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Nullable
