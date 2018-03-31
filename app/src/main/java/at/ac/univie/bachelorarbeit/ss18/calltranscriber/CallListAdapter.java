@@ -21,18 +21,19 @@ public class CallListAdapter extends ArrayAdapter<CallInfo> {
 
         String name = getItem(getCount() - position - 1).getName();
         String number = getItem(getCount() - position - 1).getNumber();
-        String dateTime = getItem(getCount() - position - 1).getDateTime();
+        String date = getItem(getCount() - position - 1).getDate();
+        String time = getItem(getCount() - position - 1).getTime();
 
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
         convertView = layoutInflater.inflate(R.layout.custom_row, parent, false);
 
         TextView textViewName = (TextView) convertView.findViewById(R.id.custom_row_name);
         TextView textViewNumber = (TextView) convertView.findViewById(R.id.custom_row_number);
-        TextView textViewDareTime = (TextView) convertView.findViewById(R.id.custom_row_datetime);
+        TextView textViewDateTime = (TextView) convertView.findViewById(R.id.custom_row_datetime);
 
         textViewName.setText(name);
         textViewNumber.setText(number);
-        textViewDareTime.setText(dateTime);
+        textViewDateTime.setText(date + " - " + time);
 
         return convertView;
     }

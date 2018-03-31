@@ -6,13 +6,15 @@ public class CallInfo implements Serializable {
 
     private String name;
     private String number;
-    private String dateTime;
+    private String date;
+    private String time;
     private String duration;
 
-    public CallInfo(String name, String number, String dateTime, String duration) {
+    public CallInfo(String name, String number, String date, String time, String duration) {
         this.name = name;
         this.number = number;
-        this.dateTime = dateTime;
+        this.date = date;
+        this.time = time;
         this.duration = duration;
     }
 
@@ -24,8 +26,12 @@ public class CallInfo implements Serializable {
         return number;
     }
 
-    public String getDateTime() {
-        return dateTime;
+    public String getDate() {
+        return date;
+    }
+
+    public String getTime() {
+        return time;
     }
 
     public String getDuration() {

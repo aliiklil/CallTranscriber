@@ -76,14 +76,20 @@ public class MainActivity extends AppCompatActivity
 
         String name = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getName();
         String number = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getNumber();
-        String dateTime = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDateTime();
+        String date = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDate();
+        String time = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getTime();
         String duration = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDuration();
 
         Intent intent = new Intent(this, CallActivity.class);
 
+        if(name == null) {
+            name = "";
+        }
+
         intent.putExtra("name", name);
         intent.putExtra("number", number);
-        intent.putExtra("dateTime", dateTime);
+        intent.putExtra("date", date);
+        intent.putExtra("time", time);
         intent.putExtra("duration", duration);
 
         startActivity(intent);

@@ -112,9 +112,10 @@ public class RecordService extends Service {
 
             long dateMillisLong = Long.parseLong(dateMillisString);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
-            String date = simpleDateFormat.format(new Date(dateMillisLong));
+            String date = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[0];
+            String time = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[1];
 
-            CallInfo callInfo = new CallInfo(name, number, date, duration);
+            CallInfo callInfo = new CallInfo(name, number, date, time, duration);
 
             callInfoArrayList.add(callInfo);
 
