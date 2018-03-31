@@ -8,4 +8,9 @@
     tools:context="at.ac.univie.bachelorarbeit.ss18.calltranscriber.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
+    <ListView
+        android:id="@+id/call_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ListView>
+
 </android.support.constraint.ConstraintLayout>

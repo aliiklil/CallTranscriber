@@ -47,7 +47,7 @@ public class RecordService extends Service {
                 directory.mkdir();
             }
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy_HH:mm");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
             String formattedDate = simpleDateFormat.format(new Date());
 
             File recordingFile = null;
@@ -111,7 +111,7 @@ public class RecordService extends Service {
             String dateMillisString = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
 
             long dateMillisLong = Long.parseLong(dateMillisString);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy_HH:mm");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
             String date = simpleDateFormat.format(new Date(dateMillisLong));
 
             CallInfo callInfo = new CallInfo(name, number, date, duration);

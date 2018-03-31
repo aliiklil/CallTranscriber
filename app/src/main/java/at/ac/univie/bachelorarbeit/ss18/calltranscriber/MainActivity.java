@@ -1,6 +1,7 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -12,9 +13,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final String CALL_INFO_STORAGE_FILE = "/calltranscriber/callInfo";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +43,29 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+
+        ListView listView = (ListView) findViewById(R.id.call_list);
+
+        ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
+
+        File file = new File(Environment.getExternalStorageDirectory().getPath(), CALL_INFO_STORAGE_FILE);
+
+        try {
+            if (file.exists()) {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
+                ois.close();
+            }
+
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
+        }
+
+        CallListAdapter callListAdapter = new CallListAdapter(this, callInfoArrayList);
+        listView.setAdapter(callListAdapter);
+
     }
 
     @Override
