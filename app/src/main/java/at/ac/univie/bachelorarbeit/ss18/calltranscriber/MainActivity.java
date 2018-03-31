@@ -1,5 +1,6 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -24,9 +26,10 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener {
 
     public static final String CALL_INFO_STORAGE_FILE = "/calltranscriber/callInfo";
+    private ArrayList<CallInfo> callInfoArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +47,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-
         ListView listView = (ListView) findViewById(R.id.call_list);
 
-        ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
+        callInfoArrayList = new ArrayList<CallInfo>();
 
         File file = new File(Environment.getExternalStorageDirectory().getPath(), CALL_INFO_STORAGE_FILE);
 
@@ -66,6 +67,34 @@ public class MainActivity extends AppCompatActivity
         CallListAdapter callListAdapter = new CallListAdapter(this, callInfoArrayList);
         listView.setAdapter(callListAdapter);
 
+        listView.setOnItemClickListener(this);
+
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+        String name = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getName();
+        String number = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getNumber();
+        String dateTime = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDateTime();
+        String duration = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDuration();
+
+        Intent intent = new Intent(this, CallActivity.class);
+
+        intent.putExtra("name", name);
+        intent.putExtra("number", number);
+        intent.putExtra("dateTime", dateTime);
+        intent.putExtra("duration", duration);
+
+        startActivity(intent);
+        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
     }
 
     @Override

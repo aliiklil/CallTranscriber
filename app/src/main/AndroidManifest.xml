@@ -2,12 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.ac.univie.bachelorarbeit.ss18.calltranscriber">
 
-    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
 
     <application
         android:allowBackup="true"
@@ -16,7 +16,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -27,7 +26,8 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".CallBroadcastReceiver"
+        <receiver
+            android:name=".CallBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -36,9 +36,13 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".RecordService">
-        </service>
+        <service android:name=".RecordService"></service>
 
+        <activity
+            android:name=".CallActivity"
+            android:parentActivityName=".MainActivity" >
+
+        </activity>
     </application>
 
 </manifest>
