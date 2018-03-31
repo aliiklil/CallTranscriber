@@ -4,47 +4,32 @@ import java.io.Serializable;
 
 public class CallInfo implements Serializable {
 
-    private String otherPersonName;
-    private int otherPersonNumber;
+    private String name;
+    private String number;
     private String dateTime;
     private String duration;
 
-    public CallInfo(String otherPersonName, int otherPersonNumber, String dateTime, String duration) {
-        this.otherPersonName = otherPersonName;
-        this.otherPersonNumber = otherPersonNumber;
+    public CallInfo(String name, String number, String dateTime, String duration) {
+        this.name = name;
+        this.number = number;
         this.dateTime = dateTime;
-        this.duration = duration
+        this.duration = duration;
     }
 
-    public String getOtherPersonName() {
-        return otherPersonName;
+    public String getName() {
+        return name;
     }
 
-    public void setOtherPersonName(String otherPersonName) {
-        this.otherPersonName = otherPersonName;
-    }
-
-    public int getOtherPersonNumber() {
-        return otherPersonNumber;
-    }
-
-    public void setOtherPersonNumber(int otherPersonNumber) {
-        this.otherPersonNumber = otherPersonNumber;
+    public String getNumber() {
+        return number;
     }
 
     public String getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(String dateTime) {
-        this.dateTime = dateTime;
-    }
-
     public String getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
 }

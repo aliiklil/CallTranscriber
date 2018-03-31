@@ -1,14 +1,24 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.media.MediaRecorder;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.IBinder;
+import android.provider.CallLog;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
@@ -17,8 +27,8 @@ import java.util.Date;
 
 public class RecordService extends Service {
 
-    public static final String AUDIO_STORAGE_DIRECTORY = "/sdcard/calltranscriber";
-    public static final String CALL_INFO_STORAGE_FILE = "/sdcard/calltranscriber/callInfo";
+    public static final String AUDIO_STORAGE_DIRECTORY = "/calltranscriber";
+    public static final String CALL_INFO_STORAGE_FILE = "/calltranscriber/callInfo";
 
     private MediaRecorder recorder = new MediaRecorder();
     private boolean isRecording = false;
@@ -31,7 +41,7 @@ public class RecordService extends Service {
             if (isRecording)
                 return START_NOT_STICKY;
 
-            File directory = new File(AUDIO_STORAGE_DIRECTORY);
+            File directory = new File(Environment.getExternalStorageDirectory().getPath(), AUDIO_STORAGE_DIRECTORY);
 
             if (!directory.exists()) {
                 directory.mkdir();
@@ -67,38 +77,56 @@ public class RecordService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        Toast.makeText(this, "onDestroy called", Toast.LENGTH_LONG).show();
-
-        if (recorder != null) {
-
-            isRecording = false;
-            recorder.release();
-
-        }
-
-        ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
-
         try {
-            ObjectInputStream ois = new ObjectInputStream(getApplicationContext().openFileInput(CALL_INFO_STORAGE_FILE));
-            callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
-            ois.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        CallInfo callInfo = new CallInfo();
+            super.onDestroy();
 
-        callInfoArrayList.add(callInfo);
+            if (recorder != null) {
+                isRecording = false;
+                recorder.release();
+            }
 
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(getApplicationContext().openFileOutput(CALL_INFO_STORAGE_FILE, Context.MODE_PRIVATE));
+            ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
+
+            File file = new File(Environment.getExternalStorageDirectory().getPath(), CALL_INFO_STORAGE_FILE);
+
+            if (file.exists()) {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
+                ois.close();
+            }
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            Thread.sleep(1000);
+
+            Cursor cursor = getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, null);
+            cursor.moveToFirst();
+
+            String name = cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NAME));
+            String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
+            String duration = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DURATION));
+            String dateMillisString = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
+
+            long dateMillisLong = Long.parseLong(dateMillisString);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy_HH:mm");
+            String date = simpleDateFormat.format(new Date(dateMillisLong));
+
+            CallInfo callInfo = new CallInfo(name, number, date, duration);
+
+            callInfoArrayList.add(callInfo);
+
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
             oos.writeObject(callInfoArrayList);
             oos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
+            Toast.makeText(this, "onDestroy finished", Toast.LENGTH_LONG).show();
+
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Nullable
