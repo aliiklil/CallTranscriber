@@ -1,12 +1,26 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 public class CallActivity extends AppCompatActivity {
+
+    private Button buttonPlayAndPause;
+    private SeekBar seekBar;
+    private TextView textViewElapsedTime;
+    private TextView textViewRemainingTime;
+    private MediaPlayer mediaPlayer;
+    private int audioDuration;
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +41,75 @@ public class CallActivity extends AppCompatActivity {
         textViewTime.setText(intent.getStringExtra("time").toString());
         textViewDuration.setText(DateUtils.formatElapsedTime(Long.valueOf(intent.getStringExtra("duration").toString())));
 
+        buttonPlayAndPause = (Button) findViewById(R.id.activity_call_play_pause_button);
+        textViewElapsedTime = (TextView) findViewById(R.id.activity_call_elapsed_time);
+        textViewRemainingTime = (TextView) findViewById(R.id.activity_call_remaining_time);
+        seekBar = (SeekBar) findViewById(R.id.activity_call_seekBar);
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.music);
+        mediaPlayer.setVolume(1, 1);
+        mediaPlayer.setLooping(false);
+        audioDuration = mediaPlayer.getDuration();
+
+        seekBar.setMax(audioDuration);
+        seekBar.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        if (fromUser) {
+                            seekBar.setProgress(progress);
+                            mediaPlayer.seekTo(progress);
+                        }
+                    }
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) { }
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) { }
+                }
+        );
+        
+        CallActivity.this.runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                if(mediaPlayer != null){
+                    seekBar.setProgress(mediaPlayer.getCurrentPosition());
+
+                    String elapsedTime = createTimeString(mediaPlayer.getCurrentPosition());
+                    textViewElapsedTime.setText(elapsedTime);
+
+                    String remainingTime = createTimeString(audioDuration - mediaPlayer.getCurrentPosition());
+                    textViewRemainingTime.setText("- " + remainingTime);
+                }
+                handler.postDelayed(this, 1000);
+            }
+        });
+    }
+
+    private String createTimeString(int time) {
+
+        int minutes = time / 1000 / 60;
+        int seconds = time / 1000 % 60;
+
+        String timeString = minutes + ":";
+
+        if (seconds <= 9) {
+            timeString = timeString + "0";
+        }
+
+        timeString = timeString + seconds;
+
+        return timeString;
+    }
+
+    public void onPlayAndPause(View view) {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            buttonPlayAndPause.setBackgroundResource(R.drawable.play);
+        } else {
+            mediaPlayer.start();
+            buttonPlayAndPause.setBackgroundResource(R.drawable.stop);
+        }
     }
 
     @Override

@@ -93,4 +93,37 @@
         android:textColor="@android:color/black"
         android:textSize="18dp" />
 
+    <SeekBar
+        android:id="@+id/activity_call_seekBar"
+        android:layout_below="@+id/activity_call_duration_label"
+        android:layout_centerHorizontal="true"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:id="@+id/activity_call_elapsed_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/activity_call_seekBar"
+        android:layout_below="@+id/activity_call_seekBar" />
+
+    <TextView
+        android:id="@+id/activity_call_remaining_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/activity_call_seekBar"
+        android:layout_below="@+id/activity_call_seekBar" />
+
+    <Button
+        android:id="@+id/activity_call_play_pause_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/play"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/activity_call_seekBar"
+        android:layout_centerHorizontal="true"
+        android:onClick="onPlayAndPause" />
+
 </RelativeLayout>
+
