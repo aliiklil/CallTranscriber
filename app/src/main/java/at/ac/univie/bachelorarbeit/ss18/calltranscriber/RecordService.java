@@ -32,6 +32,7 @@ public class RecordService extends Service {
 
     private MediaRecorder recorder = new MediaRecorder();
     private boolean isRecording = false;
+    private File recordingFile = null;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -49,8 +50,6 @@ public class RecordService extends Service {
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
             String formattedDate = simpleDateFormat.format(new Date());
-
-            File recordingFile = null;
 
             recordingFile = File.createTempFile(formattedDate, ".mp4", directory);
 
@@ -109,13 +108,14 @@ public class RecordService extends Service {
             String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
             String duration = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DURATION));
             String dateMillisString = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
+            String fileName = recordingFile.getName();
 
             long dateMillisLong = Long.parseLong(dateMillisString);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
             String date = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[0];
             String time = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[1];
 
-            CallInfo callInfo = new CallInfo(name, number, date, time, duration);
+            CallInfo callInfo = new CallInfo(name, number, date, time, duration, fileName);
 
             callInfoArrayList.add(callInfo);
 

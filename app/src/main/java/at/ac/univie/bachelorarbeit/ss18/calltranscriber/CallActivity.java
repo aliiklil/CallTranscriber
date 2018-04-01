@@ -2,15 +2,21 @@ package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.File;
 
 public class CallActivity extends AppCompatActivity {
 
@@ -45,8 +51,10 @@ public class CallActivity extends AppCompatActivity {
         textViewElapsedTime = (TextView) findViewById(R.id.activity_call_elapsed_time);
         textViewRemainingTime = (TextView) findViewById(R.id.activity_call_remaining_time);
         seekBar = (SeekBar) findViewById(R.id.activity_call_seekBar);
+        
+        Uri uri = Uri.parse("/sdcard/calltranscriber/" + intent.getStringExtra("fileName").toString());
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.music);
+        mediaPlayer = MediaPlayer.create(this, uri);
         mediaPlayer.setVolume(1, 1);
         mediaPlayer.setLooping(false);
         audioDuration = mediaPlayer.getDuration();
@@ -67,7 +75,7 @@ public class CallActivity extends AppCompatActivity {
                     public void onStopTrackingTouch(SeekBar seekBar) { }
                 }
         );
-        
+
         CallActivity.this.runOnUiThread(new Runnable() {
 
             @Override
@@ -116,6 +124,9 @@ public class CallActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
     }
 
 }

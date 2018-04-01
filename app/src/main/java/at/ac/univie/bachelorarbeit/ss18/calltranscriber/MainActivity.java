@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity
         String date = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDate();
         String time = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getTime();
         String duration = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDuration();
+        String fileName = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getFileName();
 
         Intent intent = new Intent(this, CallActivity.class);
 
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity
         intent.putExtra("date", date);
         intent.putExtra("time", time);
         intent.putExtra("duration", duration);
+        intent.putExtra("fileName", fileName);
 
         startActivity(intent);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
