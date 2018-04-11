@@ -8,15 +8,13 @@ public class CallInfo implements Serializable {
     private String number;
     private String date;
     private String time;
-    private String duration;
     private String fileName;
 
-    public CallInfo(String name, String number, String date, String time, String duration, String fileName) {
+    public CallInfo(String name, String number, String date, String time, String fileName) {
         this.name = name;
         this.number = number;
         this.date = date;
         this.time = time;
-        this.duration = duration;
         this.fileName = fileName;
     }
 
@@ -34,10 +32,6 @@ public class CallInfo implements Serializable {
 
     public String getTime() {
         return time;
-    }
-
-    public String getDuration() {
-        return duration;
     }
 
     public String getFileName() {

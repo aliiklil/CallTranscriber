@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="at.ac.univie.bachelorarbeit.ss18.calltranscriber.CallActivity">
+    tools:context="at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities.CallActivity">
 
     <TextView
         android:id="@+id/activity_call_number_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="25dp"
         android:text="Number:"
         android:textColor="@android:color/black"
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="25dp"
         android:textColor="@android:color/black"
         android:textSize="18dp"  />
@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/activity_call_number_label"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="25dp"
         android:text="Date:"
         android:textColor="@android:color/black"
@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/activity_call_number_value"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="25dp"
         android:textColor="@android:color/black"
         android:textSize="18dp" />
@@ -54,7 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/activity_call_date_label"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="25dp"
         android:text="Time:"
         android:textColor="@android:color/black"
@@ -66,40 +66,18 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/activity_call_date_value"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="25dp"
-        android:layout_marginRight="25dp"
-        android:textColor="@android:color/black"
-        android:textSize="18dp" />
-
-    <TextView
-        android:id="@+id/activity_call_duration_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/activity_call_time_label"
-        android:layout_marginTop="25dp"
-        android:layout_marginLeft="25dp"
-        android:text="Duration:"
-        android:textColor="@android:color/black"
-        android:textSize="18dp" />
-
-    <TextView
-        android:id="@+id/activity_call_duration_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/activity_call_time_value"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="25dp"
         android:textColor="@android:color/black"
         android:textSize="18dp" />
 
     <SeekBar
         android:id="@+id/activity_call_seekBar"
-        android:layout_below="@+id/activity_call_duration_label"
+        android:layout_below="@+id/activity_call_time_label"
         android:layout_centerHorizontal="true"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="20dp" />
 
     <TextView
         android:id="@+id/activity_call_elapsed_time"
@@ -120,10 +98,32 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:background="@drawable/play"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         android:layout_below="@+id/activity_call_seekBar"
         android:layout_centerHorizontal="true"
         android:onClick="onPlayAndPause" />
+
+    <Button
+        android:id="@+id/activity_call_transcribe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:padding="20dp"
+        android:layout_below="@+id/activity_call_play_pause_button"
+        android:layout_centerHorizontal="true"
+        android:text="Transcribe"
+        android:onClick="onTranscribe" />
+
+    <Button
+        android:id="@+id/activity_call_send_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:padding="20dp"
+        android:layout_below="@+id/activity_call_transcribe"
+        android:layout_centerHorizontal="true"
+        android:text="Send Transcription Per E-Mail"
+        android:onClick="onSendEmail" />
 
 </RelativeLayout>
 

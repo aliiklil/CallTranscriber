@@ -1,18 +1,14 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.CallLog;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
@@ -68,7 +64,7 @@ public class RecordService extends Service {
             isRecording = true;
 
         } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         return Service.START_NOT_STICKY;
@@ -106,7 +102,6 @@ public class RecordService extends Service {
 
             String name = cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NAME));
             String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
-            String duration = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DURATION));
             String dateMillisString = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
             String fileName = recordingFile.getName();
 
@@ -115,7 +110,7 @@ public class RecordService extends Service {
             String date = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[0];
             String time = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[1];
 
-            CallInfo callInfo = new CallInfo(name, number, date, time, duration, fileName);
+            CallInfo callInfo = new CallInfo(name, number, date, time, fileName);
 
             callInfoArrayList.add(callInfo);
 
@@ -130,7 +125,6 @@ public class RecordService extends Service {
         }
     }
 
-    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;

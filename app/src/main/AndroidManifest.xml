@@ -17,11 +17,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -36,13 +37,16 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".RecordService"></service>
+        <service android:name=".RecordService" />
 
         <activity
-            android:name=".CallActivity"
-            android:parentActivityName=".MainActivity" >
-
-        </activity>
+            android:name=".activities.CallActivity"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name=".activities.SendMailActivity"
+            android:parentActivityName=".activities.CallActivity"/>
     </application>
 
 </manifest>

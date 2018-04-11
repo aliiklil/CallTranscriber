@@ -1,10 +1,8 @@
-package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
+package at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,8 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -24,6 +20,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.CallInfo;
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.CallListAdapter;
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener {
@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity
         String number = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getNumber();
         String date = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDate();
         String time = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getTime();
-        String duration = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDuration();
         String fileName = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getFileName();
 
         Intent intent = new Intent(this, CallActivity.class);
@@ -91,7 +90,6 @@ public class MainActivity extends AppCompatActivity
         intent.putExtra("number", number);
         intent.putExtra("date", date);
         intent.putExtra("time", time);
-        intent.putExtra("duration", duration);
         intent.putExtra("fileName", fileName);
 
         startActivity(intent);
@@ -132,14 +130,21 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        if (id == R.id.activity_main_drawer_settings) {
+
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+
+        }
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        drawer.closeDrawer(GravityCompat.START, false);
         return true;
     }
 }
