@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
 
@@ -35,4 +36,6 @@ public class SendMailActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
     }
 
+    public void onSend(View view) {
+    }
 }
