@@ -1,6 +1,7 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -47,18 +48,18 @@ public class RecordService extends Service {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
             String formattedDate = simpleDateFormat.format(new Date());
 
-            recordingFile = File.createTempFile(formattedDate, ".mp4", directory);
+            recordingFile = File.createTempFile(formattedDate, ".m4a", directory);
 
             recorder.reset();
             recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
             recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             recorder.setOutputFile(recordingFile.getAbsolutePath());
-            recorder.setAudioEncodingBitRate(128000);
-            recorder.setAudioSamplingRate(44100);
 
             recorder.prepare();
             recorder.start();
+
+
             Toast.makeText(this, "Recording started", Toast.LENGTH_LONG).show();
 
             isRecording = true;

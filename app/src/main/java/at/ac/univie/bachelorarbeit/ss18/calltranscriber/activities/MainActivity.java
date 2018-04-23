@@ -1,8 +1,10 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -37,7 +39,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -51,8 +52,8 @@ public class MainActivity extends AppCompatActivity
 
         callInfoArrayList = new ArrayList<CallInfo>();
 
-        File file = new File(Environment.getExternalStorageDirectory().getPath(), CALL_INFO_STORAGE_FILE);
-
+        File file = new File(Environment.getExternalStorageDirectory().getPath() + CALL_INFO_STORAGE_FILE);
+        Log.i("Halllllllo", Build.CPU_ABI);
         try {
             if (file.exists()) {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity
             }
 
         } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         CallListAdapter callListAdapter = new CallListAdapter(this, callInfoArrayList);

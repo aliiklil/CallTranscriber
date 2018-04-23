@@ -1,1 +1,1 @@
-include ':app'
+include ':app', ':java-sdk-5.2.0-jar-with-dependencies'
