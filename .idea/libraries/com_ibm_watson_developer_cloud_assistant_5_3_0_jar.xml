@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="com.ibm.watson.developer_cloud:assistant:5.3.0@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.ibm.watson.developer_cloud/assistant/5.3.0/26509f59951284bc4c84b71d0cb326c9475c8629/assistant-5.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.ibm.watson.developer_cloud/assistant/5.3.0/9a66ea8d4a06c5419bbbd497d5b6e488b08c9130/assistant-5.3.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

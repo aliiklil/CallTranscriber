@@ -9,12 +9,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Base64OutputStream;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeakerLabelsResult;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResult;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResults;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -26,9 +34,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
@@ -208,7 +215,6 @@ public class CallActivity extends AppCompatActivity {
 
                 String jsonBody = (new JSONObject(json1)).toJSONString();
 
-
                 OkHttpClient client = new OkHttpClient();
 
                 MediaType jsonMediaType = MediaType.parse("application/json; charset=utf-8");
@@ -231,9 +237,78 @@ public class CallActivity extends AppCompatActivity {
                 fos.write(response.body().bytes());
                 fos.close();
 
+                SpeechToText service = new SpeechToText();
+                service.setUsernameAndPassword("01c5d2c9-dc25-4e04-8da7-79c72031f39d", "MmJvmy5GFzas");
 
+                File audioFileFlac = new File(audioFile[0].getAbsolutePath() + ".flac");
 
+                RecognizeOptions options = new RecognizeOptions.Builder()
+                        .audio(new File(audioFileFlac.getAbsolutePath()))
+                        .contentType(RecognizeOptions.ContentType.AUDIO_FLAC)
+                        .model(RecognizeOptions.Model.EN_US_NARROWBANDMODEL)
+                        .speakerLabels(true)
+                        .build();
 
+                audioFileFlac.delete();
+
+                SpeechRecognitionResults transcript = service.recognize(options).execute();
+
+                List<SpeechRecognitionResult> speechRecognitionResults = transcript.getResults();
+                List<SpeakerLabelsResult> speakerLabelsResult = transcript.getSpeakerLabels();
+
+                String rawTranscript = "";
+
+                JSONParser parser = new JSONParser();
+
+                Object obj = parser.parse(speechRecognitionResults.toString());
+
+                JSONArray jsonArray = (JSONArray) obj;
+
+                for(int i = 0; i < jsonArray.size(); i++) {
+
+                    JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+
+                    JSONObject jsonObject2 = (JSONObject) ((JSONArray) jsonObject.get("alternatives")).get(0);
+
+                    rawTranscript = rawTranscript + jsonObject2.get("transcript");
+
+                }
+
+                String[] words = rawTranscript.split(" ");
+
+                Object obj2 = parser.parse(speakerLabelsResult.toString());
+
+                JSONArray jsonArray2 = (JSONArray) obj2;
+
+                int[] speakerLabels = new int[jsonArray2.size()];
+
+                for(int i = 0; i < jsonArray2.size(); i++) {
+
+                    JSONObject jsonObject = (JSONObject) jsonArray2.get(i);
+
+                    speakerLabels[i] = Integer.parseInt(String.valueOf((jsonObject.get("speaker"))));
+
+                }
+
+                String pdfString = "Speaker " + speakerLabels[0] + ":";
+
+                for(int i = 0; i < words.length; i++) {
+
+                    pdfString = pdfString + " " + words[i];
+
+                    if(i < speakerLabels.length - 1 && speakerLabels[i] != speakerLabels[i+1]) {
+                        pdfString = pdfString + "\nSpeaker " + speakerLabels[i+1] + ":";
+                    }
+
+                }
+
+                pdfString = pdfString.replaceAll("%HESITATION", "(Hesitation)");
+
+                Document document = new Document();
+                PdfWriter.getInstance(document, new FileOutputStream(audioFile[0].getAbsolutePath().substring(0, audioFile[0].getAbsolutePath().lastIndexOf('.')) + ".pdf"));
+                document.open();
+                document.add(new Paragraph(pdfString));
+                document.close();
 
             } catch (Exception e) {
                 e.printStackTrace();
