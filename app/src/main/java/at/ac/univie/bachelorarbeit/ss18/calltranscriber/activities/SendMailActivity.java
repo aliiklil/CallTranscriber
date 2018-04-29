@@ -1,6 +1,8 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
@@ -37,6 +39,10 @@ public class SendMailActivity extends AppCompatActivity {
         audioFile = new File(intent.getStringExtra("audioFilePath"));
         pdfFile = new File(intent.getStringExtra("pdfFilePath"));
 
+        SharedPreferences sharedPreferences = getSharedPreferences("emailAdress", Context.MODE_PRIVATE);
+        String emailAdress = sharedPreferences.getString("emailAdress", "");
+        emailAdressEditText.setText(emailAdress);
+
     }
 
     @Override
@@ -64,6 +70,11 @@ public class SendMailActivity extends AppCompatActivity {
             return;
         }
 
+        SharedPreferences sharedPreferences = getSharedPreferences("emailAdress", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("emailAdress", emailAdress);
+        editor.apply();
+        
         Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
         emailIntent.setType("text/plain");
         emailIntent .putExtra(Intent.EXTRA_EMAIL, new String[]{emailAdress});
