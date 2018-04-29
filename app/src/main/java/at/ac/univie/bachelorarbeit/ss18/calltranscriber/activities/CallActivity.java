@@ -216,10 +216,7 @@ public class CallActivity extends AppCompatActivity {
                  e.printStackTrace();
              }
 
-/*
             try {
-
-                Log.i("CallTranscriberInfo", "Stelle 1");
 
                 InputStream inputStream = new FileInputStream(audioFile[0].getAbsolutePath());
                 byte[] buffer = new byte[8192];
@@ -272,30 +269,22 @@ public class CallActivity extends AppCompatActivity {
                 fos.write(response.body().bytes());
                 fos.close();
 
-                Log.i("CallTranscriberInfo", "Stelle 2");
-
                 SpeechToText service = new SpeechToText();
-                Log.i("CallTranscriberInfo", "Stelle 2.1");
                 service.setUsernameAndPassword("01c5d2c9-dc25-4e04-8da7-79c72031f39d", "MmJvmy5GFzas");
-                Log.i("CallTranscriberInfo", "Stelle 2.2");
 
                 File audioFileFlac = new File(audioFile[0].getAbsolutePath() + ".flac");
-                Log.i("CallTranscriberInfo", "Stelle 2.3");
+
                 RecognizeOptions options = new RecognizeOptions.Builder()
                         .audio(new File(audioFileFlac.getAbsolutePath()))
                         .contentType(RecognizeOptions.ContentType.AUDIO_FLAC)
                         .model(RecognizeOptions.Model.EN_US_NARROWBANDMODEL)
                         .speakerLabels(true)
                         .build();
-                Log.i("CallTranscriberInfo", "Stelle 2.4");
 
                 SpeechRecognitionResults transcript = service.recognize(options).execute();
-                Log.i("CallTranscriberInfo", "Stelle 2.5");
-                List<SpeechRecognitionResult> speechRecognitionResults = transcript.getResults();
-                Log.i("CallTranscriberInfo", "Stelle 2.6");
-                List<SpeakerLabelsResult> speakerLabelsResult = transcript.getSpeakerLabels();
 
-                Log.i("CallTranscriberInfo", "Stelle 3");
+                List<SpeechRecognitionResult> speechRecognitionResults = transcript.getResults();
+                List<SpeakerLabelsResult> speakerLabelsResult = transcript.getSpeakerLabels();
 
                 String rawTranscript = "";
 
@@ -353,12 +342,10 @@ public class CallActivity extends AppCompatActivity {
 
                 audioFileFlac.delete();
 
-                Log.i("CallTranscriberInfo", "Stelle 4");
-
             } catch(Exception e) {
                 Log.e("CallTranscriberError", Log.getStackTraceString(e));
             }
-*/
+
             return null;
         }
 
@@ -379,6 +366,8 @@ public class CallActivity extends AppCompatActivity {
         Intent intentSendMailActivity = new Intent(this, SendMailActivity.class);
 
         intentSendMailActivity.putExtra("name", intent.getStringExtra("name").toString());
+        intentSendMailActivity.putExtra("audioFilePath", audioFile.getAbsolutePath());
+        intentSendMailActivity.putExtra("pdfFilePath", pdfFile.getAbsolutePath());
 
         startActivity(intentSendMailActivity);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
