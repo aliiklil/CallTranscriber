@@ -111,7 +111,6 @@
         android:padding="20dp"
         android:layout_below="@+id/activity_call_play_pause_button"
         android:layout_centerHorizontal="true"
-        android:text="Send Audio To E-Mail"
         android:onClick="onSendEmail" />
 
     <Button
@@ -123,6 +122,15 @@
         android:layout_below="@+id/activity_call_send_email"
         android:layout_centerHorizontal="true"
         android:onClick="onCreateAndOpenTranscript" />
+
+    <ProgressBar
+        android:id="@+id/activity_call_progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/activity_call_create_and_open_transcript"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp" />
 
 </RelativeLayout>
 

@@ -13,6 +13,7 @@ import android.util.Base64OutputStream;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +64,9 @@ public class CallActivity extends AppCompatActivity {
     private File pdfFile;
 
     private Button createAndOpenTranscriptButton;
+    private Button sendEmailButton;
+
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,11 @@ public class CallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_call);
 
         createAndOpenTranscriptButton = (Button) findViewById(R.id.activity_call_create_and_open_transcript);
+        sendEmailButton  = (Button) findViewById(R.id.activity_call_send_email);
+
+        progressBar  = (ProgressBar) findViewById(R.id.activity_call_progressBar);
+
+        progressBar.setVisibility(View.INVISIBLE);
 
         TextView textViewNumber = (TextView) findViewById(R.id.activity_call_number_value);
         TextView textViewDate = (TextView) findViewById(R.id.activity_call_date_value);
@@ -93,8 +102,10 @@ public class CallActivity extends AppCompatActivity {
 
         if(pdfFile.exists()){
             createAndOpenTranscriptButton.setText("Open Transcript");
+            sendEmailButton.setText("Send Audio & Transcript To E-Mail");
         } else {
             createAndOpenTranscriptButton.setText("Create Transcript");
+            sendEmailButton.setText("Send Audio To E-Mail");
         }
 
         mediaPlayer = new MediaPlayer();
@@ -193,11 +204,19 @@ public class CallActivity extends AppCompatActivity {
         protected void onPreExecute() {
 
             createAndOpenTranscriptButton.setEnabled(false);
+            progressBar.setVisibility(View.VISIBLE);
 
         }
 
         protected Void doInBackground(File... audioFile) {
 
+             try {
+                 Thread.sleep(3000);
+             } catch (InterruptedException e) {
+                 e.printStackTrace();
+             }
+
+/*
             try {
 
                 Log.i("CallTranscriberInfo", "Stelle 1");
@@ -339,7 +358,7 @@ public class CallActivity extends AppCompatActivity {
             } catch(Exception e) {
                 Log.e("CallTranscriberError", Log.getStackTraceString(e));
             }
-
+*/
             return null;
         }
 
@@ -347,7 +366,9 @@ public class CallActivity extends AppCompatActivity {
 
             createAndOpenTranscriptButton.setText("Open Transcript");
             createAndOpenTranscriptButton.setEnabled(true);
+            sendEmailButton.setText("Send Audio & Transcript To E-Mail");
             Toast.makeText(getApplicationContext(), "Transcript created", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.INVISIBLE);
 
         }
 
