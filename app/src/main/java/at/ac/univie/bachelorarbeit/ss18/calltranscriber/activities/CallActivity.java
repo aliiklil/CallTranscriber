@@ -2,6 +2,7 @@ package at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Base64OutputStream;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -47,7 +49,7 @@ import okhttp3.Response;
 
 public class CallActivity extends AppCompatActivity {
 
-    private Button buttonPlayAndPause;
+    private Button playAndPauseButton;
     private SeekBar seekBar;
     private TextView textViewElapsedTime;
     private TextView textViewRemainingTime;
@@ -58,11 +60,16 @@ public class CallActivity extends AppCompatActivity {
     private Intent intent;
 
     private File audioFile;
+    private File pdfFile;
+
+    private Button createAndOpenTranscriptButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
+
+        createAndOpenTranscriptButton = (Button) findViewById(R.id.activity_call_create_and_open_transcript);
 
         TextView textViewNumber = (TextView) findViewById(R.id.activity_call_number_value);
         TextView textViewDate = (TextView) findViewById(R.id.activity_call_date_value);
@@ -76,14 +83,20 @@ public class CallActivity extends AppCompatActivity {
         textViewDate.setText(intent.getStringExtra("date").toString());
         textViewTime.setText(intent.getStringExtra("time").toString());
 
-        buttonPlayAndPause = (Button) findViewById(R.id.activity_call_play_pause_button);
+        playAndPauseButton = (Button) findViewById(R.id.activity_call_play_pause_button);
         textViewElapsedTime = (TextView) findViewById(R.id.activity_call_elapsed_time);
         textViewRemainingTime = (TextView) findViewById(R.id.activity_call_remaining_time);
         seekBar = (SeekBar) findViewById(R.id.activity_call_seekBar);
 
         audioFile = new File(Environment.getExternalStorageDirectory().getPath() + "/calltranscriber/" + intent.getStringExtra("fileName").toString());
+        pdfFile = new File(audioFile.getAbsolutePath().substring(0, audioFile.getAbsolutePath().lastIndexOf('.')) + ".pdf");
 
-        //Uri uri = Uri.parse(audioFile.getAbsolutePath());
+        if(pdfFile.exists()){
+            createAndOpenTranscriptButton.setText("Open Transcript");
+        } else {
+            createAndOpenTranscriptButton.setText("Create Transcript");
+        }
+
         mediaPlayer = new MediaPlayer();
 
         try {
@@ -155,36 +168,39 @@ public class CallActivity extends AppCompatActivity {
     public void onPlayAndPause(View view) {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-            buttonPlayAndPause.setBackgroundResource(R.drawable.play);
+            playAndPauseButton.setBackgroundResource(R.drawable.play);
         } else {
             mediaPlayer.start();
-            buttonPlayAndPause.setBackgroundResource(R.drawable.stop);
+            playAndPauseButton.setBackgroundResource(R.drawable.stop);
         }
     }
 
-    public void onCreateTranscript(View view) {
+    public void onCreateAndOpenTranscript(View view) {
 
-        new TranscribeTask().execute(audioFile);
-
-    }
-
-    public void onSendEmail(View view) {
-
-        Intent intentSendMailActivity = new Intent(this, SendMailActivity.class);
-
-        intentSendMailActivity.putExtra("name", intent.getStringExtra("name").toString());
-
-        startActivity(intentSendMailActivity);
-        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
-
+        if(pdfFile.exists()){
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(pdfFile), "application/pdf");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
+        } else {
+            new TranscriptionTask().execute(audioFile);
+        }
 
     }
 
-    private class TranscribeTask extends AsyncTask<File, Void, Void> {
+    private class TranscriptionTask extends AsyncTask<File, Void, Void> {
+
+        protected void onPreExecute() {
+
+            createAndOpenTranscriptButton.setEnabled(false);
+
+        }
 
         protected Void doInBackground(File... audioFile) {
 
             try {
+
+                Log.i("CallTranscriberInfo", "Stelle 1");
 
                 InputStream inputStream = new FileInputStream(audioFile[0].getAbsolutePath());
                 byte[] buffer = new byte[8192];
@@ -202,7 +218,7 @@ public class CallActivity extends AppCompatActivity {
 
                 String base64EncodedAudio = output.toString();
 
-                Map<String,Object> json1 = new HashMap<String,Object>();
+                Map<String, Object> json1 = new HashMap<String, Object>();
 
                 json1.put("apikey", "2AuF91XehuALjm7DSfootd210CTGp51XuGc2-5a0Sgswe2NGu7ta9s-r3jIamnrmGEDamlcVzvBY9HNq6WmGOA");
                 json1.put("inputformat", "m4a");
@@ -237,24 +253,30 @@ public class CallActivity extends AppCompatActivity {
                 fos.write(response.body().bytes());
                 fos.close();
 
+                Log.i("CallTranscriberInfo", "Stelle 2");
+
                 SpeechToText service = new SpeechToText();
+                Log.i("CallTranscriberInfo", "Stelle 2.1");
                 service.setUsernameAndPassword("01c5d2c9-dc25-4e04-8da7-79c72031f39d", "MmJvmy5GFzas");
+                Log.i("CallTranscriberInfo", "Stelle 2.2");
 
                 File audioFileFlac = new File(audioFile[0].getAbsolutePath() + ".flac");
-
+                Log.i("CallTranscriberInfo", "Stelle 2.3");
                 RecognizeOptions options = new RecognizeOptions.Builder()
                         .audio(new File(audioFileFlac.getAbsolutePath()))
                         .contentType(RecognizeOptions.ContentType.AUDIO_FLAC)
                         .model(RecognizeOptions.Model.EN_US_NARROWBANDMODEL)
                         .speakerLabels(true)
                         .build();
-
-                audioFileFlac.delete();
+                Log.i("CallTranscriberInfo", "Stelle 2.4");
 
                 SpeechRecognitionResults transcript = service.recognize(options).execute();
-
+                Log.i("CallTranscriberInfo", "Stelle 2.5");
                 List<SpeechRecognitionResult> speechRecognitionResults = transcript.getResults();
+                Log.i("CallTranscriberInfo", "Stelle 2.6");
                 List<SpeakerLabelsResult> speakerLabelsResult = transcript.getSpeakerLabels();
+
+                Log.i("CallTranscriberInfo", "Stelle 3");
 
                 String rawTranscript = "";
 
@@ -264,7 +286,7 @@ public class CallActivity extends AppCompatActivity {
 
                 JSONArray jsonArray = (JSONArray) obj;
 
-                for(int i = 0; i < jsonArray.size(); i++) {
+                for (int i = 0; i < jsonArray.size(); i++) {
 
                     JSONObject jsonObject = (JSONObject) jsonArray.get(i);
 
@@ -282,7 +304,7 @@ public class CallActivity extends AppCompatActivity {
 
                 int[] speakerLabels = new int[jsonArray2.size()];
 
-                for(int i = 0; i < jsonArray2.size(); i++) {
+                for (int i = 0; i < jsonArray2.size(); i++) {
 
                     JSONObject jsonObject = (JSONObject) jsonArray2.get(i);
 
@@ -292,12 +314,12 @@ public class CallActivity extends AppCompatActivity {
 
                 String pdfString = "Speaker " + speakerLabels[0] + ":";
 
-                for(int i = 0; i < words.length; i++) {
+                for (int i = 0; i < words.length; i++) {
 
                     pdfString = pdfString + " " + words[i];
 
-                    if(i < speakerLabels.length - 1 && speakerLabels[i] != speakerLabels[i+1]) {
-                        pdfString = pdfString + "\nSpeaker " + speakerLabels[i+1] + ":";
+                    if (i < speakerLabels.length - 1 && speakerLabels[i] != speakerLabels[i + 1]) {
+                        pdfString = pdfString + "\nSpeaker " + speakerLabels[i + 1] + ":";
                     }
 
                 }
@@ -305,22 +327,40 @@ public class CallActivity extends AppCompatActivity {
                 pdfString = pdfString.replaceAll("%HESITATION", "(Hesitation)");
 
                 Document document = new Document();
-                PdfWriter.getInstance(document, new FileOutputStream(audioFile[0].getAbsolutePath().substring(0, audioFile[0].getAbsolutePath().lastIndexOf('.')) + ".pdf"));
+                PdfWriter.getInstance(document, new FileOutputStream(pdfFile));
                 document.open();
                 document.add(new Paragraph(pdfString));
                 document.close();
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                audioFileFlac.delete();
+
+                Log.i("CallTranscriberInfo", "Stelle 4");
+
+            } catch(Exception e) {
+                Log.e("CallTranscriberError", Log.getStackTraceString(e));
             }
 
             return null;
         }
 
+        protected void onPostExecute(Void result) {
 
-        protected void onPostExecute(String transcription) {
+            createAndOpenTranscriptButton.setText("Open Transcript");
+            createAndOpenTranscriptButton.setEnabled(true);
+            Toast.makeText(getApplicationContext(), "Transcript created", Toast.LENGTH_LONG).show();
 
         }
+
+    }
+
+    public void onSendEmail(View view) {
+
+        Intent intentSendMailActivity = new Intent(this, SendMailActivity.class);
+
+        intentSendMailActivity.putExtra("name", intent.getStringExtra("name").toString());
+
+        startActivity(intentSendMailActivity);
+        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
 
     }
 

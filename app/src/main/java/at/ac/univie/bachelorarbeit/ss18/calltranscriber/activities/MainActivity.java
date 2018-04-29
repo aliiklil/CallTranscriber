@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         callInfoArrayList = new ArrayList<CallInfo>();
 
         File file = new File(Environment.getExternalStorageDirectory().getPath() + CALL_INFO_STORAGE_FILE);
-        Log.i("Halllllllo", Build.CPU_ABI);
+
         try {
             if (file.exists()) {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));

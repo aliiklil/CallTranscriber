@@ -7,20 +7,49 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaRecorder;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.CallLog;
 import android.support.v4.app.ActivityCompat;
+import android.util.Base64;
+import android.util.Base64OutputStream;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeakerLabelsResult;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResult;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResults;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class RecordService extends Service {
 
@@ -59,7 +88,6 @@ public class RecordService extends Service {
             recorder.prepare();
             recorder.start();
 
-
             Toast.makeText(this, "Recording started", Toast.LENGTH_LONG).show();
 
             isRecording = true;
@@ -68,7 +96,7 @@ public class RecordService extends Service {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        return Service.START_NOT_STICKY;
+        return Service.START_STICKY;
     }
 
     @Override
@@ -119,10 +147,10 @@ public class RecordService extends Service {
             oos.writeObject(callInfoArrayList);
             oos.close();
 
-            Toast.makeText(this, "onDestroy finished", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Recording stopped", Toast.LENGTH_LONG).show();
 
         } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e("CallTranscriberInfo", "Fehler", e);
         }
     }
 
