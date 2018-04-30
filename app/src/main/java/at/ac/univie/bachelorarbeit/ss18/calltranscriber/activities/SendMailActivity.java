@@ -74,18 +74,22 @@ public class SendMailActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("emailAdress", emailAdress);
         editor.apply();
-        
+
         Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
         emailIntent.setType("text/plain");
         emailIntent .putExtra(Intent.EXTRA_EMAIL, new String[]{emailAdress});
 
         ArrayList<Parcelable> attachementList = new ArrayList<Parcelable>();
 
-        Uri audioFileUri = Uri.fromFile(audioFile);
-        Uri pdfFileUri = Uri.fromFile(pdfFile);
+        if(audioFile.exists()) {
+            Uri audioFileUri = Uri.fromFile(audioFile);
+            attachementList.add(audioFileUri);
+        }
 
-        attachementList.add(audioFileUri);
-        attachementList.add(pdfFileUri);
+        if(pdfFile.exists()) {
+            Uri pdfFileUri = Uri.fromFile(pdfFile);
+            attachementList.add(pdfFileUri);
+        }
 
         emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, attachementList);
 
