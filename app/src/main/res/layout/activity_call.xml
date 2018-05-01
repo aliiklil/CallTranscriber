@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,7 +16,7 @@
         android:layout_marginLeft="25dp"
         android:text="Number:"
         android:textColor="@android:color/black"
-        android:textSize="18dp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/activity_call_number_value"
@@ -25,7 +26,7 @@
         android:layout_marginTop="15dp"
         android:layout_marginRight="25dp"
         android:textColor="@android:color/black"
-        android:textSize="18dp"  />
+        android:textSize="18sp"  />
 
     <TextView
         android:id="@+id/activity_call_date_label"
@@ -36,7 +37,7 @@
         android:layout_marginLeft="25dp"
         android:text="Date:"
         android:textColor="@android:color/black"
-        android:textSize="18dp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/activity_call_date_value"
@@ -47,7 +48,7 @@
         android:layout_marginTop="15dp"
         android:layout_marginRight="25dp"
         android:textColor="@android:color/black"
-        android:textSize="18dp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/activity_call_time_label"
@@ -58,7 +59,7 @@
         android:layout_marginLeft="25dp"
         android:text="Time:"
         android:textColor="@android:color/black"
-        android:textSize="18dp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/activity_call_time_value"
@@ -69,7 +70,7 @@
         android:layout_marginTop="15dp"
         android:layout_marginRight="25dp"
         android:textColor="@android:color/black"
-        android:textSize="18dp" />
+        android:textSize="18sp" />
 
     <SeekBar
         android:id="@+id/activity_call_seekBar"

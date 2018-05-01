@@ -13,16 +13,9 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="Ali Sina Iklil"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-
-    <TextView
-        android:id="@+id/textView"
+        android:id="@+id/nav_header_main_phone_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="+4367761728717" />
+        android:textSize="20sp" />
 
 </LinearLayout>

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -35,7 +33,7 @@ public class SendMailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         setTitle(intent.getStringExtra("name").toString());
 
-        emailAdressEditText = (EditText) findViewById(R.id.activity_send_mail_email_adress);
+        emailAdressEditText = findViewById(R.id.activity_send_mail_email_adress);
         audioFile = new File(intent.getStringExtra("audioFilePath"));
         pdfFile = new File(intent.getStringExtra("pdfFilePath"));
 
@@ -93,7 +91,7 @@ public class SendMailActivity extends AppCompatActivity {
 
         emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, attachementList);
 
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "CallTranscriber Audio And Transcript");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "CallTranscriber");
         startActivity(Intent.createChooser(emailIntent , null));
 
     }

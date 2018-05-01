@@ -50,7 +50,7 @@ import okhttp3.Response;
 
 public class CallActivity extends AppCompatActivity {
 
-    private Button playAndPauseButton;
+    private Button buttonPlayAndPause;
     private SeekBar seekBar;
     private TextView textViewElapsedTime;
     private TextView textViewRemainingTime;
@@ -63,7 +63,7 @@ public class CallActivity extends AppCompatActivity {
     private File audioFile;
     private File pdfFile;
 
-    private Button createAndOpenTranscriptButton;
+    private Button buttonCreateAndOpenTranscript;
     private Button sendEmailButton;
 
     private ProgressBar progressBar;
@@ -73,16 +73,16 @@ public class CallActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
 
-        createAndOpenTranscriptButton = (Button) findViewById(R.id.activity_call_create_and_open_transcript);
-        sendEmailButton  = (Button) findViewById(R.id.activity_call_send_email);
+        buttonCreateAndOpenTranscript = findViewById(R.id.activity_call_create_and_open_transcript);
+        sendEmailButton  = findViewById(R.id.activity_call_send_email);
 
-        progressBar  = (ProgressBar) findViewById(R.id.activity_call_progressBar);
+        progressBar  = findViewById(R.id.activity_call_progressBar);
 
         progressBar.setVisibility(View.INVISIBLE);
 
-        TextView textViewNumber = (TextView) findViewById(R.id.activity_call_number_value);
-        TextView textViewDate = (TextView) findViewById(R.id.activity_call_date_value);
-        TextView textViewTime = (TextView) findViewById(R.id.activity_call_time_value);
+        TextView textViewNumber = findViewById(R.id.activity_call_number_value);
+        TextView textViewDate = findViewById(R.id.activity_call_date_value);
+        TextView textViewTime = findViewById(R.id.activity_call_time_value);
 
         intent = getIntent();
 
@@ -92,19 +92,19 @@ public class CallActivity extends AppCompatActivity {
         textViewDate.setText(intent.getStringExtra("date").toString());
         textViewTime.setText(intent.getStringExtra("time").toString());
 
-        playAndPauseButton = (Button) findViewById(R.id.activity_call_play_pause_button);
-        textViewElapsedTime = (TextView) findViewById(R.id.activity_call_elapsed_time);
-        textViewRemainingTime = (TextView) findViewById(R.id.activity_call_remaining_time);
-        seekBar = (SeekBar) findViewById(R.id.activity_call_seekBar);
+        buttonPlayAndPause = findViewById(R.id.activity_call_play_pause_button);
+        textViewElapsedTime = findViewById(R.id.activity_call_elapsed_time);
+        textViewRemainingTime = findViewById(R.id.activity_call_remaining_time);
+        seekBar = findViewById(R.id.activity_call_seekBar);
 
         audioFile = new File(Environment.getExternalStorageDirectory().getPath() + "/calltranscriber/" + intent.getStringExtra("fileName").toString());
         pdfFile = new File(audioFile.getAbsolutePath().substring(0, audioFile.getAbsolutePath().lastIndexOf('.')) + ".pdf");
 
         if(pdfFile.exists()){
-            createAndOpenTranscriptButton.setText("Open Transcript");
+            buttonCreateAndOpenTranscript.setText("Open Transcript");
             sendEmailButton.setText("Send Audio & Transcript To E-Mail");
         } else {
-            createAndOpenTranscriptButton.setText("Create Transcript");
+            buttonCreateAndOpenTranscript.setText("Create Transcript");
             sendEmailButton.setText("Send Audio To E-Mail");
         }
 
@@ -179,10 +179,10 @@ public class CallActivity extends AppCompatActivity {
     public void onPlayAndPause(View view) {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-            playAndPauseButton.setBackgroundResource(R.drawable.play);
+            buttonPlayAndPause.setBackgroundResource(R.drawable.play);
         } else {
             mediaPlayer.start();
-            playAndPauseButton.setBackgroundResource(R.drawable.stop);
+            buttonPlayAndPause.setBackgroundResource(R.drawable.stop);
         }
     }
 
@@ -203,7 +203,7 @@ public class CallActivity extends AppCompatActivity {
 
         protected void onPreExecute() {
 
-            createAndOpenTranscriptButton.setEnabled(false);
+            buttonCreateAndOpenTranscript.setEnabled(false);
             progressBar.setVisibility(View.VISIBLE);
 
         }
@@ -351,8 +351,8 @@ public class CallActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void result) {
 
-            createAndOpenTranscriptButton.setText("Open Transcript");
-            createAndOpenTranscriptButton.setEnabled(true);
+            buttonCreateAndOpenTranscript.setText("Open Transcript");
+            buttonCreateAndOpenTranscript.setEnabled(true);
             sendEmailButton.setText("Send Audio & Transcript To E-Mail");
             Toast.makeText(getApplicationContext(), "Transcript created", Toast.LENGTH_LONG).show();
             progressBar.setVisibility(View.INVISIBLE);

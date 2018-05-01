@@ -1,55 +1,28 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaRecorder;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.CallLog;
 import android.support.v4.app.ActivityCompat;
-import android.util.Base64;
-import android.util.Base64OutputStream;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeakerLabelsResult;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResult;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResults;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class RecordService extends Service {
 
@@ -65,32 +38,38 @@ public class RecordService extends Service {
 
         try {
 
-            if (isRecording)
-                return START_NOT_STICKY;
+            SharedPreferences sharedPreferences = getSharedPreferences("recordCalls", Context.MODE_PRIVATE);
 
-            File directory = new File(Environment.getExternalStorageDirectory().getPath(), AUDIO_STORAGE_DIRECTORY);
+            if(sharedPreferences.getBoolean("recordCalls", true)) {
 
-            if (!directory.exists()) {
-                directory.mkdir();
+                if (isRecording)
+                    return START_NOT_STICKY;
+
+                File directory = new File(Environment.getExternalStorageDirectory().getPath(), AUDIO_STORAGE_DIRECTORY);
+
+                if (!directory.exists()) {
+                    directory.mkdir();
+                }
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
+                String formattedDate = simpleDateFormat.format(new Date());
+
+                recordingFile = File.createTempFile(formattedDate, ".m4a", directory);
+
+                recorder.reset();
+                recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
+                recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                recorder.setOutputFile(recordingFile.getAbsolutePath());
+
+                recorder.prepare();
+                recorder.start();
+
+                Toast.makeText(this, "Recording started", Toast.LENGTH_LONG).show();
+
+                isRecording = true;
+
             }
-
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
-            String formattedDate = simpleDateFormat.format(new Date());
-
-            recordingFile = File.createTempFile(formattedDate, ".m4a", directory);
-
-            recorder.reset();
-            recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
-            recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-            recorder.setOutputFile(recordingFile.getAbsolutePath());
-
-            recorder.prepare();
-            recorder.start();
-
-            Toast.makeText(this, "Recording started", Toast.LENGTH_LONG).show();
-
-            isRecording = true;
 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -124,7 +103,7 @@ public class RecordService extends Service {
                 return;
             }
 
-            Thread.sleep(1000);
+            Thread.sleep(2000);
 
             Cursor cursor = getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, null);
             cursor.moveToFirst();
