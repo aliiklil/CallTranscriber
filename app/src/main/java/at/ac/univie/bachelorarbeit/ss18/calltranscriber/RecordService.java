@@ -26,12 +26,12 @@ import java.util.Date;
 
 public class RecordService extends Service {
 
-    public static final String AUDIO_STORAGE_DIRECTORY = "/calltranscriber";
+    public static final String AUDIO_STORAGE_DIRECTORY = "/calltranscriber/";
     public static final String CALL_INFO_STORAGE_FILE = "/calltranscriber/callInfo";
 
     private MediaRecorder recorder = new MediaRecorder();
     private boolean isRecording = false;
-    private File recordingFile = null;
+    private File audioFile = null;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -54,13 +54,13 @@ public class RecordService extends Service {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
                 String formattedDate = simpleDateFormat.format(new Date());
 
-                recordingFile = File.createTempFile(formattedDate, ".m4a", directory);
+                audioFile = new File(Environment.getExternalStorageDirectory().getPath() + AUDIO_STORAGE_DIRECTORY + formattedDate + ".m4a");
 
                 recorder.reset();
                 recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
                 recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                recorder.setOutputFile(recordingFile.getAbsolutePath());
+                recorder.setOutputFile(audioFile.getAbsolutePath());
 
                 recorder.prepare();
                 recorder.start();
@@ -103,7 +103,7 @@ public class RecordService extends Service {
                 return;
             }
 
-            Thread.sleep(2000);
+            Thread.sleep(1500);
 
             Cursor cursor = getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, null);
             cursor.moveToFirst();
@@ -111,7 +111,7 @@ public class RecordService extends Service {
             String name = cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NAME));
             String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
             String dateMillisString = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
-            String fileName = recordingFile.getName();
+            String fileName = audioFile.getName();
 
             long dateMillisLong = Long.parseLong(dateMillisString);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
