@@ -61,6 +61,9 @@ public class RecordService extends Service {
                 recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
                 recorder.setOutputFile(audioFile.getAbsolutePath());
+                recorder.setAudioSamplingRate(16000);
+                recorder.setAudioEncodingBitRate(256000);
+                recorder.setAudioChannels(1);
 
                 recorder.prepare();
                 recorder.start();
