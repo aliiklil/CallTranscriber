@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -86,6 +85,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
+        int id = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getId();
         String name = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getName();
         String number = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getNumber();
         String date = callInfoArrayList.get(callInfoArrayList.size() - i - 1).getDate();
@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity
             name = "";
         }
 
+        intent.putExtra("id", id);
         intent.putExtra("name", name);
         intent.putExtra("number", number);
         intent.putExtra("date", date);
@@ -142,19 +143,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
@@ -168,4 +156,5 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START, false);
         return true;
     }
+
 }

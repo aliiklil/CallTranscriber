@@ -1,16 +1,20 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -37,16 +41,22 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.CallInfo;
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static org.spongycastle.asn1.x500.style.RFC4519Style.name;
 
 public class CallActivity extends AppCompatActivity {
 
@@ -68,6 +78,8 @@ public class CallActivity extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
+    private int id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +97,8 @@ public class CallActivity extends AppCompatActivity {
         TextView textViewTime = findViewById(R.id.activity_call_time_value);
 
         intent = getIntent();
+
+        id = intent.getIntExtra("id", -1);
 
         setTitle(intent.getStringExtra("name").toString());
 
@@ -381,6 +395,82 @@ public class CallActivity extends AppCompatActivity {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    public void deleteCall(MenuItem item) {
+
+        if(item.getItemId() == R.id.options_menu_delete_call) {
+
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            alertDialog.setTitle("CallTranscriber");
+            alertDialog.setMessage("Do you really want to delete this call and its audio (and transcript)?");
+
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            try {
+
+                                ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
+
+                                File file = new File(Environment.getExternalStorageDirectory().getPath() + MainActivity.CALL_INFO_STORAGE_FILE);
+
+                                if (file.exists()) {
+                                    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                                    callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
+                                    ois.close();
+                                }
+
+                                for(int i = 0; i < callInfoArrayList.size(); i++) {
+                                    if(id == callInfoArrayList.get(i).getId()) {
+                                        callInfoArrayList.remove(i);
+                                        break;
+                                    }
+                                }
+
+                                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+                                oos.writeObject(callInfoArrayList);
+                                oos.close();
+
+                                if(pdfFile.exists()) {
+                                    pdfFile.delete();
+                                }
+
+                                if(audioFile.exists()) {
+                                    audioFile.delete();
+                                }
+
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+
+                                startActivity(intent);
+                                overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+
+                                dialog.dismiss();
+
+                                Toast.makeText(getApplicationContext(), "Call deleted", Toast.LENGTH_LONG).show();
+
+                            } catch (Exception e) {
+                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "CANCEL",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+            alertDialog.show();
+        }
+
     }
 
 }

@@ -118,8 +118,16 @@ public class RecordService extends Service {
             String date = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[0];
             String time = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[1];
 
-            CallInfo callInfo = new CallInfo(name, number, date, time, fileName);
+            int highestAssignedId = 0;
 
+            for(CallInfo callinfo : callInfoArrayList) {
+                if(highestAssignedId < callinfo.getId()) {
+                    highestAssignedId = callinfo.getId();
+                }
+            }
+
+            CallInfo callInfo = new CallInfo(highestAssignedId + 1, name, number, date, time, fileName);
+            Log.i("CallTranscriberInfo", String.valueOf(highestAssignedId + 1));
             callInfoArrayList.add(callInfo);
 
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));

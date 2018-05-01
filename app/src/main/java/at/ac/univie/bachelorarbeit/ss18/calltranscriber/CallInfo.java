@@ -4,18 +4,24 @@ import java.io.Serializable;
 
 public class CallInfo implements Serializable {
 
+    private int id;
     private String name;
     private String number;
     private String date;
     private String time;
     private String fileName;
 
-    public CallInfo(String name, String number, String date, String time, String fileName) {
+    public CallInfo(int id, String name, String number, String date, String time, String fileName) {
+        this.id = id;
         this.name = name;
         this.number = number;
         this.date = date;
         this.time = time;
         this.fileName = fileName;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {
