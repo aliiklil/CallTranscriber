@@ -116,10 +116,10 @@ public class CallActivity extends AppCompatActivity {
 
         if(pdfFile.exists()){
             buttonCreateAndOpenTranscript.setText("Open Transcript");
-            sendEmailButton.setText("Send Audio & Transcript To E-Mail");
+            sendEmailButton.setText("Send Audio & Transcript");
         } else {
             buttonCreateAndOpenTranscript.setText("Create Transcript");
-            sendEmailButton.setText("Send Audio To E-Mail");
+            sendEmailButton.setText("Send Audio");
         }
 
         mediaPlayer = new MediaPlayer();
@@ -224,12 +224,6 @@ public class CallActivity extends AppCompatActivity {
 
         protected Void doInBackground(File... audioFile) {
 
-             try {
-                 Thread.sleep(3000);
-             } catch (InterruptedException e) {
-                 e.printStackTrace();
-             }
-
             try {
 
                 InputStream inputStream = new FileInputStream(audioFile[0].getAbsolutePath());
@@ -237,13 +231,11 @@ public class CallActivity extends AppCompatActivity {
                 int bytesRead;
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 Base64OutputStream output64 = new Base64OutputStream(output, Base64.DEFAULT);
-                try {
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        output64.write(buffer, 0, bytesRead);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    output64.write(buffer, 0, bytesRead);
                 }
+
                 output64.close();
 
                 String base64EncodedAudio = output.toString();
@@ -357,7 +349,7 @@ public class CallActivity extends AppCompatActivity {
                 audioFileFlac.delete();
 
             } catch(Exception e) {
-                Log.e("CallTranscriberError", Log.getStackTraceString(e));
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
             return null;
@@ -367,7 +359,7 @@ public class CallActivity extends AppCompatActivity {
 
             buttonCreateAndOpenTranscript.setText("Open Transcript");
             buttonCreateAndOpenTranscript.setEnabled(true);
-            sendEmailButton.setText("Send Audio & Transcript To E-Mail");
+            sendEmailButton.setText("Send Audio & Transcript");
             Toast.makeText(getApplicationContext(), "Transcript created", Toast.LENGTH_LONG).show();
             progressBar.setVisibility(View.INVISIBLE);
 

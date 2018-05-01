@@ -51,7 +51,7 @@ public class RecordService extends Service {
                     directory.mkdir();
                 }
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss");
                 String formattedDate = simpleDateFormat.format(new Date());
 
                 audioFile = new File(Environment.getExternalStorageDirectory().getPath() + AUDIO_STORAGE_DIRECTORY + formattedDate + ".m4a");
@@ -130,7 +130,7 @@ public class RecordService extends Service {
             }
 
             CallInfo callInfo = new CallInfo(highestAssignedId + 1, name, number, date, time, fileName);
-            Log.i("CallTranscriberInfo", String.valueOf(highestAssignedId + 1));
+
             callInfoArrayList.add(callInfo);
 
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
@@ -140,7 +140,7 @@ public class RecordService extends Service {
             Toast.makeText(this, "Recording stopped", Toast.LENGTH_LONG).show();
 
         } catch (Exception e) {
-            Log.e("CallTranscriberInfo", "Fehler", e);
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
