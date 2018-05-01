@@ -1,4 +1,4 @@
-package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
+package at.ac.univie.bachelorarbeit.ss18.calltranscriber.model;
 
 import java.io.Serializable;
 

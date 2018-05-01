@@ -15,7 +15,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -27,8 +26,8 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
-import at.ac.univie.bachelorarbeit.ss18.calltranscriber.CallInfo;
-import at.ac.univie.bachelorarbeit.ss18.calltranscriber.CallListAdapter;
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.model.CallInfo;
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.util.CallListAdapter;
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
 
 public class MainActivity extends AppCompatActivity

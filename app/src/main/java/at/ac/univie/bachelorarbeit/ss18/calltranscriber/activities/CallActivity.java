@@ -1,9 +1,7 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,11 +11,8 @@ import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Base64OutputStream;
-import android.util.Log;
-import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,15 +48,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import at.ac.univie.bachelorarbeit.ss18.calltranscriber.CallInfo;
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.model.CallInfo;
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import static org.spongycastle.asn1.x500.style.RFC4519Style.name;
 
 public class CallActivity extends AppCompatActivity {
 
@@ -79,7 +72,7 @@ public class CallActivity extends AppCompatActivity {
     private File pdfFile;
 
     private Button buttonCreateAndOpenTranscript;
-    private Button sendEmailButton;
+    private Button buttonShare;
 
     private ProgressBar progressBar;
 
@@ -91,7 +84,7 @@ public class CallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_call);
 
         buttonCreateAndOpenTranscript = findViewById(R.id.activity_call_create_and_open_transcript);
-        sendEmailButton  = findViewById(R.id.activity_call_send_email);
+        buttonShare  = findViewById(R.id.activity_call_send_email);
 
         progressBar  = findViewById(R.id.activity_call_progressBar);
 
@@ -121,10 +114,10 @@ public class CallActivity extends AppCompatActivity {
 
         if(pdfFile.exists()){
             buttonCreateAndOpenTranscript.setText("Open Transcript");
-            sendEmailButton.setText("Share Audio & Transcript");
+            buttonShare.setText("Share Audio & Transcript");
         } else {
             buttonCreateAndOpenTranscript.setText("Create Transcript");
-            sendEmailButton.setText("Share Audio");
+            buttonShare.setText("Share Audio");
         }
 
         mediaPlayer = new MediaPlayer();
@@ -364,7 +357,7 @@ public class CallActivity extends AppCompatActivity {
 
             buttonCreateAndOpenTranscript.setText("Open Transcript");
             buttonCreateAndOpenTranscript.setEnabled(true);
-            sendEmailButton.setText("Share Audio & Transcript");
+            buttonShare.setText("Share Audio & Transcript");
             Toast.makeText(getApplicationContext(), "Transcript created", Toast.LENGTH_LONG).show();
             progressBar.setVisibility(View.INVISIBLE);
 

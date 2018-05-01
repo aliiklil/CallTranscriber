@@ -1,4 +1,4 @@
-package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
+package at.ac.univie.bachelorarbeit.ss18.calltranscriber.recorder;
 
 import android.Manifest;
 import android.app.Service;
@@ -12,7 +12,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.provider.CallLog;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -23,6 +22,8 @@ import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.model.CallInfo;
 
 public class RecordService extends Service {
 

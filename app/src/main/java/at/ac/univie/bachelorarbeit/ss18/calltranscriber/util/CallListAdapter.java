@@ -1,4 +1,4 @@
-package at.ac.univie.bachelorarbeit.ss18.calltranscriber;
+package at.ac.univie.bachelorarbeit.ss18.calltranscriber.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,6 +9,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.model.CallInfo;
 
 public class CallListAdapter extends ArrayAdapter<CallInfo> {
 
