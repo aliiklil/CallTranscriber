@@ -112,7 +112,7 @@
         android:padding="20dp"
         android:layout_below="@+id/activity_call_play_pause_button"
         android:layout_centerHorizontal="true"
-        android:onClick="onSendEmail" />
+        android:onClick="onShare" />
 
     <Button
         android:id="@+id/activity_call_create_and_open_transcript"

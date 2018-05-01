@@ -46,8 +46,6 @@
         <activity
             android:name=".activities.SettingsActivity"
             android:parentActivityName=".activities.MainActivity" />
-        <activity android:name=".activities.SendMailActivity"
-            android:parentActivityName=".activities.CallActivity"/>
     </application>
 
 </manifest>

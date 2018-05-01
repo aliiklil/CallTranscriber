@@ -1,18 +1,23 @@
 package at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -116,10 +121,10 @@ public class CallActivity extends AppCompatActivity {
 
         if(pdfFile.exists()){
             buttonCreateAndOpenTranscript.setText("Open Transcript");
-            sendEmailButton.setText("Send Audio & Transcript");
+            sendEmailButton.setText("Share Audio & Transcript");
         } else {
             buttonCreateAndOpenTranscript.setText("Create Transcript");
-            sendEmailButton.setText("Send Audio");
+            sendEmailButton.setText("Share Audio");
         }
 
         mediaPlayer = new MediaPlayer();
@@ -359,7 +364,7 @@ public class CallActivity extends AppCompatActivity {
 
             buttonCreateAndOpenTranscript.setText("Open Transcript");
             buttonCreateAndOpenTranscript.setEnabled(true);
-            sendEmailButton.setText("Send Audio & Transcript");
+            sendEmailButton.setText("Share Audio & Transcript");
             Toast.makeText(getApplicationContext(), "Transcript created", Toast.LENGTH_LONG).show();
             progressBar.setVisibility(View.INVISIBLE);
 
@@ -367,16 +372,27 @@ public class CallActivity extends AppCompatActivity {
 
     }
 
-    public void onSendEmail(View view) {
+    public void onShare(View view) {
 
-        Intent intentSendMailActivity = new Intent(this, SendMailActivity.class);
+        Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        intent.setType("text/plain");
 
-        intentSendMailActivity.putExtra("name", intent.getStringExtra("name").toString());
-        intentSendMailActivity.putExtra("audioFilePath", audioFile.getAbsolutePath());
-        intentSendMailActivity.putExtra("pdfFilePath", pdfFile.getAbsolutePath());
+        ArrayList<Parcelable> attachementList = new ArrayList<Parcelable>();
 
-        startActivity(intentSendMailActivity);
-        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+        if(audioFile.exists()) {
+            Uri audioFileUri = Uri.fromFile(audioFile);
+            attachementList.add(audioFileUri);
+        }
+
+        if(pdfFile.exists()) {
+            Uri pdfFileUri = Uri.fromFile(pdfFile);
+            attachementList.add(pdfFileUri);
+        }
+
+        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, attachementList);
+
+        intent.putExtra(Intent.EXTRA_SUBJECT, "CallTranscriber");
+        startActivity(Intent.createChooser(intent , null));
 
     }
 
