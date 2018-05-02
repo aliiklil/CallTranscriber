@@ -12,9 +12,15 @@ import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
-
+    /**
+     * If the checkbox is checked, calls will be recorded. If it is unchecked, calls will not be recorded.
+     */
     private CheckBox checkBox;
 
+    /**
+     * Will set the checkbox checked or unchecked, depending on what it was last time.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,12 +39,20 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Will be called when the user presses the back button or closes the app.
+     * This method has been overridden to make the transition look more smooth.
+     */
     @Override
     public void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
     }
 
+    /**
+     * Will be called when the user either checks or unchecks the checkbox.
+     * Whether calls should be recorded or not will be saved in SharedPreferences, and a toast will be shown.
+     */
     public void onRecordCalls(View view) {
 
         if(checkBox.isChecked()) {

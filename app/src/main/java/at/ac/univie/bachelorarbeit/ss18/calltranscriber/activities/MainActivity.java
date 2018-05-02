@@ -30,14 +30,32 @@ import at.ac.univie.bachelorarbeit.ss18.calltranscriber.model.CallInfo;
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.util.CallListAdapter;
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
 
+/**
+ * Will show a list of all recorded calls to the user.
+ */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener {
 
+    /**
+     * Path of the callInfo file, in which all information about every recorded call is saved.
+     * This is done via serialization of an ArrayList with the type parameter CallInfo.
+     */
     public static final String CALL_INFO_STORAGE_FILE = "/calltranscriber/callInfo";
+
+    /**
+     * ArrayList with the information of all recorded calls.
+     */
     private ArrayList<CallInfo> callInfoArrayList;
 
+    /**
+     * Will be used to show the user his own phone number in the burger menu.
+     */
     private TextView textViewPhoneNumber;
 
+    /**
+     * Will display the list of all calls and setup up the burger menu.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +99,13 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Will be called when the user clicks on a call to launch the CallActivity. Every information of this call is being sent alongside.
+     * @param adapterView
+     * @param view
+     * @param i
+     * @param l
+     */
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
@@ -109,6 +134,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Will set the phone number in the burger menu.
+     */
     private void setPhoneNumberText() {
 
         TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -125,12 +153,19 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Will be called when the user presses the back button or closes the app.
+     * This method has been overridden to make the transition look more smooth.
+     */
     @Override
     public void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
     }
 
+    /**
+     * If the burger menu is open it will be closed.
+     */
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -141,6 +176,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Will be called when an item in the burger menu is pressed. Settings is the only item in the burger menu.
+     * @param item
+     * @return
+     */
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();

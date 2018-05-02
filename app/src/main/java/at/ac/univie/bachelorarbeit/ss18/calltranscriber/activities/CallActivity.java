@@ -56,37 +56,94 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ *
+ */
 public class CallActivity extends AppCompatActivity {
 
+    /**
+     * To play and pause the audio file.
+     */
     private Button buttonPlayAndPause;
+
+    /**
+     * To seek to a specific point in the audio file.
+     */
     private SeekBar seekBar;
+
+    /**
+     * To show the already elapsed time in the playback of the audio file to the user.
+     */
     private TextView textViewElapsedTime;
+
+    /**
+     * To show the remaining time in the playback of the audio file to the user.
+     */
     private TextView textViewRemainingTime;
+
+    /**
+     * To playback the audio file.
+     */
     private MediaPlayer mediaPlayer;
+
+    /**
+     * Duration of the audio file.
+     */
     private int audioDuration;
+
+    /**
+     * Used to update the seekbar, when the audio is being played back.
+     */
     private Handler handler = new Handler();
 
+    /**
+     * To get the name and number of the called person and the date and time of the call from the MainActivity.
+     */
     private Intent intent;
 
+    /**
+     * The audio file the call was recorded to.
+     */
     private File audioFile;
+
+    /**
+     * The pdf file, which the transcript is written to.
+     */
     private File pdfFile;
 
+    /**
+     * To create the transcript or to open the transcript if it already has been created.
+     */
     private Button buttonCreateAndOpenTranscript;
+
+    /**
+     * To share the transcript via email, Whatsapp etc.
+     */
     private Button buttonShare;
 
+    /**
+     * Will be shown, while the transcript is being created.
+     */
     private ProgressBar progressBar;
 
+    /**
+     * Unique id of the specific call, which will be need for deleting it.
+     */
     private int id;
 
+    /**
+     * Will be called, when the user clicks on a call in MainActivity. This method will setup the call information and initialize everything necessary for the playback of the audio file.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
 
         buttonCreateAndOpenTranscript = findViewById(R.id.activity_call_create_and_open_transcript);
-        buttonShare  = findViewById(R.id.activity_call_send_email);
+        buttonShare = findViewById(R.id.activity_call_send_email);
 
-        progressBar  = findViewById(R.id.activity_call_progressBar);
+        progressBar = findViewById(R.id.activity_call_progressBar);
 
         progressBar.setVisibility(View.INVISIBLE);
 
@@ -172,6 +229,11 @@ public class CallActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Will create the time string for the elapsed and remaining time of the playback of the audio file.
+     * @param time The current position in milliseconds
+     * @return The time string for the elapsed or remaining time
+     */
     private String createTimeString(int time) {
 
         int minutes = time / 1000 / 60;
@@ -188,6 +250,10 @@ public class CallActivity extends AppCompatActivity {
         return timeString;
     }
 
+    /**
+     * Will be called whenever the user hits the play/pause button.
+     * @param view
+     */
     public void onPlayAndPause(View view) {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
@@ -198,6 +264,10 @@ public class CallActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Will be called whenever the user hits the "Create Transcript" or "Open Transcript" button.
+     * @param view
+     */
     public void onCreateAndOpenTranscript(View view) {
 
         if(pdfFile.exists()){
@@ -211,8 +281,15 @@ public class CallActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Will be used to create the transcript. AsyncTask are needed whenever an app needs to make a long background operation.
+     */
     private class TranscriptionTask extends AsyncTask<File, Void, Void> {
 
+        /**
+         * Will be called to make changes to the UI before starting the background operation, in which the transcript is created.
+         * The button for creating the transcript will be disabled and the progressbar will be shown.
+         */
         protected void onPreExecute() {
 
             buttonCreateAndOpenTranscript.setEnabled(false);
@@ -220,6 +297,13 @@ public class CallActivity extends AppCompatActivity {
 
         }
 
+        /**
+         * Creates the transcript. First the audiofile, which is saved as an .m4a file, will be converted to a .flac file with the help of an outside file conversion API.
+         * This conversion needs to happen, because the IBM Watson Speech To Text API doesn't accept any file format created by the MediaRecorder.
+         * The IBM Watson Speech To Text API then responds with the transcript, which needs to be parsed and saved to a pdf file.
+         * @param audioFile
+         * @return
+         */
         protected Void doInBackground(File... audioFile) {
 
             try {
@@ -353,6 +437,11 @@ public class CallActivity extends AppCompatActivity {
             return null;
         }
 
+        /**
+         * Will be called after the transcript has been created to make changes to the UI, signalling that the
+         * background operation has been completed.
+         * @param result
+         */
         protected void onPostExecute(Void result) {
 
             buttonCreateAndOpenTranscript.setText("Open Transcript");
@@ -365,6 +454,11 @@ public class CallActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Will be called when the user presses the "Share Audio" or "Share Audio & Transcript" button.
+     * The user can send the audio, or the audio and the transcript to anyone including himself via email, WhatsApp etc.
+     * @param view
+     */
     public void onShare(View view) {
 
         Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
@@ -389,6 +483,11 @@ public class CallActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Will be called when the user presses the back button or closes the app.
+     * This method has been overridden to make the transition look more smooth and because
+     * the playback of the audio file needs to be stopped, if it is being played back.
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -398,12 +497,23 @@ public class CallActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * To create the options menu, which will be needed to delete this call with its audio and pdf file.
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options_menu, menu);
         return true;
     }
 
+    /**
+     * Will be called, when the user presses the "Delete Call" item in the options menu. This method
+     * will show the user an AlertDialog to confirm his action and then will delete the call information in the
+     * callInfo file and its audio and pdf file, if they exist.
+     * @param item
+     */
     public void deleteCall(MenuItem item) {
 
         if(item.getItemId() == R.id.options_menu_delete_call) {

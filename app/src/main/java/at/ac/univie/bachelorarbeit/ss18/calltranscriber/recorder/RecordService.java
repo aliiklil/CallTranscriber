@@ -23,17 +23,38 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities.MainActivity;
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.model.CallInfo;
 
 public class RecordService extends Service {
 
+    /**
+     * Directory where the callInfo file, and the audio and pdf files of all calls are stored.
+     */
     public static final String AUDIO_STORAGE_DIRECTORY = "/calltranscriber/";
-    public static final String CALL_INFO_STORAGE_FILE = "/calltranscriber/callInfo";
 
+    /**
+     * To record the call.
+     */
     private MediaRecorder recorder = new MediaRecorder();
+
+    /**
+     * To check if the MediaRecorder is recording.
+     */
     private boolean isRecording = false;
+
+    /**
+     * The audio file, the MediaRecorder is recording to.
+     */
     private File audioFile = null;
 
+    /**
+     * Will be called when the user calls someone or is getting called. This method simply sets up the MediaRecorder and starts recording with it.
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -82,6 +103,9 @@ public class RecordService extends Service {
         return Service.START_STICKY;
     }
 
+    /**
+     * Will be called when the call is being hung up by either side. This simply stop the recording and creates a new CallInfo object which is stored in the callInfo file.
+     */
     @Override
     public void onDestroy() {
         try {
@@ -95,7 +119,7 @@ public class RecordService extends Service {
 
             ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
 
-            File file = new File(Environment.getExternalStorageDirectory().getPath(), CALL_INFO_STORAGE_FILE);
+            File file = new File(Environment.getExternalStorageDirectory().getPath(), MainActivity.CALL_INFO_STORAGE_FILE);
 
             if (file.exists()) {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
