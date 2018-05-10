@@ -27,7 +27,7 @@ public class CallInfo implements Serializable {
      */
     private String date;
 
-    /**
+    /*
      * Time of the call. For example: 23:12:26
      */
     private String time;
