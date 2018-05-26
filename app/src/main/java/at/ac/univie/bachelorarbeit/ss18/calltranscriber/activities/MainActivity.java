@@ -53,6 +53,11 @@ public class MainActivity extends AppCompatActivity
     private TextView textViewPhoneNumber;
 
     /**
+     * Will be shown to the user, if he currently has no recorded calls.
+     */
+    private TextView textViewNoCalls;
+
+    /**
      * Will display the list of all calls and setup up the burger menu.
      * @param savedInstanceState
      */
@@ -72,6 +77,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         textViewPhoneNumber = navigationView.getHeaderView(0).findViewById(R.id.nav_header_main_phone_number);
+
+        textViewNoCalls = findViewById(R.id.conent_main_no_calls_label);
+
+        textViewNoCalls.setVisibility(View.INVISIBLE);
 
         initCallList();
 
@@ -139,10 +148,16 @@ public class MainActivity extends AppCompatActivity
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                 callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
                 ois.close();
+            } else {
+                textViewNoCalls.setVisibility(View.VISIBLE);
             }
 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        if(callInfoArrayList.isEmpty()) {
+            textViewNoCalls.setVisibility(View.VISIBLE);
         }
 
         CallListAdapter callListAdapter = new CallListAdapter(this, callInfoArrayList);
