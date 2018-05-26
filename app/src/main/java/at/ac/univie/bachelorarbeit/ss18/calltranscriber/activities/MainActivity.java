@@ -73,30 +73,19 @@ public class MainActivity extends AppCompatActivity
 
         textViewPhoneNumber = navigationView.getHeaderView(0).findViewById(R.id.nav_header_main_phone_number);
 
-        ListView listView = findViewById(R.id.call_list);
-
-        callInfoArrayList = new ArrayList<CallInfo>();
-
-        File file = new File(Environment.getExternalStorageDirectory().getPath() + CALL_INFO_STORAGE_FILE);
-
-        try {
-            if (file.exists()) {
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-                callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
-                ois.close();
-            }
-
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-
-        CallListAdapter callListAdapter = new CallListAdapter(this, callInfoArrayList);
-        listView.setAdapter(callListAdapter);
-
-        listView.setOnItemClickListener(this);
+        initCallList();
 
         setPhoneNumberText();
 
+    }
+
+    /**
+     * Will be called when the user opens MainActivity without closing it last time. This method will initalize the call list again, in case something changed.
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        initCallList();
     }
 
     /**
@@ -135,6 +124,35 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
+     * Will initialize the list of all calls.
+     */
+    private void initCallList() {
+
+        ListView listView = findViewById(R.id.call_list);
+
+        callInfoArrayList = new ArrayList<CallInfo>();
+
+        File file = new File(Environment.getExternalStorageDirectory().getPath() + CALL_INFO_STORAGE_FILE);
+
+        try {
+            if (file.exists()) {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
+                ois.close();
+            }
+
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        CallListAdapter callListAdapter = new CallListAdapter(this, callInfoArrayList);
+        listView.setAdapter(callListAdapter);
+
+        listView.setOnItemClickListener(this);
+
+    }
+
+    /**
      * Will set the phone number in the burger menu.
      */
     private void setPhoneNumberText() {
@@ -154,7 +172,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Will be called when the user presses the back button or closes the app.
+     * Will be called when the user presses the back button or pauses the app.
      * This method has been overridden to make the transition look more smooth.
      */
     @Override
@@ -164,7 +182,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * If the burger menu is open it will be closed.
+     * If the burger menu is open, it will be closed.
      */
     @Override
     public void onBackPressed() {

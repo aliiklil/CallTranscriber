@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.R;
 
+/**
+ * This class is for the settings screen, where the user can enable and disable the recording of new incoming and outgoing calls.
+ */
 public class SettingsActivity extends AppCompatActivity {
 
     /**
@@ -40,7 +43,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     /**
-     * Will be called when the user presses the back button or closes the app.
+     * Will be called when the user presses the back button or pauses the app.
      * This method has been overridden to make the transition look more smooth.
      */
     @Override

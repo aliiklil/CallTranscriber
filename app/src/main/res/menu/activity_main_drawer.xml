@@ -7,7 +7,7 @@
         <item
             android:id="@+id/activity_main_drawer_settings"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Settings" />
+            android:title="@string/settings" />
 
     </group>
 

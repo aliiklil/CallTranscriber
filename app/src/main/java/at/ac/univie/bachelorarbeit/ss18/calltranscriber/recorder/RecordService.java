@@ -26,6 +26,9 @@ import java.util.Date;
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.activities.MainActivity;
 import at.ac.univie.bachelorarbeit.ss18.calltranscriber.model.CallInfo;
 
+/**
+ * Handles the recording of new incoming and outgoing calls and creates the audio file. This class will also handle the updating of the callInfo file on the device, so the call can be seen in MainActivity.
+ */
 public class RecordService extends Service {
 
     /**
@@ -34,12 +37,12 @@ public class RecordService extends Service {
     public static final String AUDIO_STORAGE_DIRECTORY = "/calltranscriber/";
 
     /**
-     * To record the call.
+     * Needed to record the call.
      */
     private MediaRecorder recorder = new MediaRecorder();
 
     /**
-     * To check if the MediaRecorder is recording.
+     * Needed to check if the MediaRecorder is recording.
      */
     private boolean isRecording = false;
 
@@ -73,7 +76,7 @@ public class RecordService extends Service {
                     directory.mkdir();
                 }
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH.mm.ss");
                 String formattedDate = simpleDateFormat.format(new Date());
 
                 audioFile = new File(Environment.getExternalStorageDirectory().getPath() + AUDIO_STORAGE_DIRECTORY + formattedDate + ".m4a");
@@ -112,57 +115,63 @@ public class RecordService extends Service {
 
             super.onDestroy();
 
-            if (recorder != null) {
-                isRecording = false;
-                recorder.release();
-            }
+            SharedPreferences sharedPreferences = getSharedPreferences("recordCalls", Context.MODE_PRIVATE);
 
-            ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
+            if(sharedPreferences.getBoolean("recordCalls", true)) {
 
-            File file = new File(Environment.getExternalStorageDirectory().getPath(), MainActivity.CALL_INFO_STORAGE_FILE);
-
-            if (file.exists()) {
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-                callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
-                ois.close();
-            }
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-
-            Thread.sleep(1500);
-
-            Cursor cursor = getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, null);
-            cursor.moveToFirst();
-
-            String name = cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NAME));
-            String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
-            String dateMillisString = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
-            String fileName = audioFile.getName();
-
-            long dateMillisLong = Long.parseLong(dateMillisString);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
-            String date = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[0];
-            String time = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[1];
-
-            int highestAssignedId = 0;
-
-            for(CallInfo callinfo : callInfoArrayList) {
-                if(highestAssignedId < callinfo.getId()) {
-                    highestAssignedId = callinfo.getId();
+                if (recorder != null) {
+                    isRecording = false;
+                    recorder.release();
                 }
+
+                ArrayList<CallInfo> callInfoArrayList = new ArrayList<CallInfo>();
+
+                File file = new File(Environment.getExternalStorageDirectory().getPath(), MainActivity.CALL_INFO_STORAGE_FILE);
+
+                if (file.exists()) {
+                    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                    callInfoArrayList = (ArrayList<CallInfo>) ois.readObject();
+                    ois.close();
+                }
+
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+
+                Thread.sleep(1500);
+
+                Cursor cursor = getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, null);
+                cursor.moveToFirst();
+
+                String name = cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NAME));
+                String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
+                String dateMillisString = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
+                String fileName = audioFile.getName();
+
+                long dateMillisLong = Long.parseLong(dateMillisString);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm");
+                String date = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[0];
+                String time = simpleDateFormat.format(new Date(dateMillisLong)).split("-")[1];
+
+                int highestAssignedId = 0;
+
+                for (CallInfo callinfo : callInfoArrayList) {
+                    if (highestAssignedId < callinfo.getId()) {
+                        highestAssignedId = callinfo.getId();
+                    }
+                }
+
+                CallInfo callInfo = new CallInfo(highestAssignedId + 1, name, number, date, time, fileName);
+
+                callInfoArrayList.add(callInfo);
+
+                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+                oos.writeObject(callInfoArrayList);
+                oos.close();
+
+                Toast.makeText(this, "Recording stopped", Toast.LENGTH_LONG).show();
+
             }
-
-            CallInfo callInfo = new CallInfo(highestAssignedId + 1, name, number, date, time, fileName);
-
-            callInfoArrayList.add(callInfo);
-
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-            oos.writeObject(callInfoArrayList);
-            oos.close();
-
-            Toast.makeText(this, "Recording stopped", Toast.LENGTH_LONG).show();
 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();

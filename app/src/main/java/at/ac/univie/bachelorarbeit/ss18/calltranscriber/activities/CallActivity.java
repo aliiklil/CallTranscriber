@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Base64OutputStream;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,16 +29,19 @@ import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeakerLabelsResul
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResult;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResults;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +61,11 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- *
+ * This class is for showing the information for a single call, where the user can:
+ * .)Playback the recorded call
+ * .)Delete this call
+ * .)Transcribe the recorded call
+ * .)Share the recorded call and its transcript, if one has been already created
  */
 public class CallActivity extends AppCompatActivity {
 
@@ -72,12 +80,12 @@ public class CallActivity extends AppCompatActivity {
     private SeekBar seekBar;
 
     /**
-     * To show the already elapsed time in the playback of the audio file to the user.
+     * To show the already elapsed time in the playback of the audio file.
      */
     private TextView textViewElapsedTime;
 
     /**
-     * To show the remaining time in the playback of the audio file to the user.
+     * To show the remaining time in the playback of the audio file.
      */
     private TextView textViewRemainingTime;
 
@@ -97,7 +105,7 @@ public class CallActivity extends AppCompatActivity {
     private Handler handler = new Handler();
 
     /**
-     * To get the name and number of the called person and the date and time of the call from the MainActivity.
+     * To get the name and number of the called person and the date and time of the call from MainActivity.
      */
     private Intent intent;
 
@@ -112,7 +120,7 @@ public class CallActivity extends AppCompatActivity {
     private File pdfFile;
 
     /**
-     * To create the transcript or to open the transcript if it already has been created.
+     * To create the transcript or to open the transcript, if it already has been created.
      */
     private Button buttonCreateAndOpenTranscript;
 
@@ -127,7 +135,7 @@ public class CallActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     /**
-     * Unique id of the specific call, which will be need for deleting it.
+     * Unique id of the specific call, which will be needed for deleting it.
      */
     private int id;
 
@@ -141,8 +149,7 @@ public class CallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_call);
 
         buttonCreateAndOpenTranscript = findViewById(R.id.activity_call_create_and_open_transcript);
-        buttonShare = findViewById(R.id.activity_call_send_email);
-
+        buttonShare = findViewById(R.id.activity_call_share);
         progressBar = findViewById(R.id.activity_call_progressBar);
 
         progressBar.setVisibility(View.INVISIBLE);
@@ -161,7 +168,7 @@ public class CallActivity extends AppCompatActivity {
         textViewDate.setText(intent.getStringExtra("date").toString());
         textViewTime.setText(intent.getStringExtra("time").toString());
 
-        buttonPlayAndPause = findViewById(R.id.activity_call_play_pause_button);
+        buttonPlayAndPause = findViewById(R.id.activity_call_play_pause);
         textViewElapsedTime = findViewById(R.id.activity_call_elapsed_time);
         textViewRemainingTime = findViewById(R.id.activity_call_remaining_time);
         seekBar = findViewById(R.id.activity_call_seekBar);
@@ -286,21 +293,21 @@ public class CallActivity extends AppCompatActivity {
      */
     private class TranscriptionTask extends AsyncTask<File, Void, Void> {
 
+        List<SpeakerLabelsResult> speakerLabelsResult;
+
         /**
          * Will be called to make changes to the UI before starting the background operation, in which the transcript is created.
          * The button for creating the transcript will be disabled and the progressbar will be shown.
          */
         protected void onPreExecute() {
-
             buttonCreateAndOpenTranscript.setEnabled(false);
             progressBar.setVisibility(View.VISIBLE);
-
         }
 
         /**
          * Creates the transcript. First the audiofile, which is saved as an .m4a file, will be converted to a .flac file with the help of an outside file conversion API.
          * This conversion needs to happen, because the IBM Watson Speech To Text API doesn't accept any file format created by the MediaRecorder.
-         * The IBM Watson Speech To Text API then responds with the transcript, which needs to be parsed and saved to a pdf file.
+         * The IBM Watson Speech To Text API then responds with the transcript, which needs to be parsed and saved to a pdf file. Then the .flac file is being deleted, because it isn't needed further.
          * @param audioFile
          * @return
          */
@@ -308,133 +315,187 @@ public class CallActivity extends AppCompatActivity {
 
             try {
 
-                InputStream inputStream = new FileInputStream(audioFile[0].getAbsolutePath());
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                Base64OutputStream output64 = new Base64OutputStream(output, Base64.DEFAULT);
+                String base64 = convertAudioFileIntoBase64(audioFile[0]);
 
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    output64.write(buffer, 0, bytesRead);
-                }
+                convertM4aToFlac(base64, audioFile[0]);
 
-                output64.close();
+                String rawTranscript = createRawTranscript(audioFile[0]);
 
-                String base64EncodedAudio = output.toString();
+                createPDF(rawTranscript);
 
-                Map<String, Object> json1 = new HashMap<String, Object>();
-
-                json1.put("apikey", "2AuF91XehuALjm7DSfootd210CTGp51XuGc2-5a0Sgswe2NGu7ta9s-r3jIamnrmGEDamlcVzvBY9HNq6WmGOA");
-                json1.put("inputformat", "m4a");
-                json1.put("outputformat", "flac");
-                json1.put("input", "base64");
-                json1.put("file", base64EncodedAudio);
-                json1.put("filename", "1.m4a");
-                json1.put("wait", true);
-                json1.put("download", true);
-
-                String jsonBody = (new JSONObject(json1)).toJSONString();
-
-                OkHttpClient client = new OkHttpClient();
-
-                MediaType jsonMediaType = MediaType.parse("application/json; charset=utf-8");
-
-                RequestBody requestBody = RequestBody.create(jsonMediaType, jsonBody);
-
-                Request request = new Request.Builder()
-                        .url("https://api.cloudconvert.com/convert")
-                        .post(requestBody)
-                        .build();
-
-                Response response = client.newCall(request).execute();
-
-
-                if (!response.isSuccessful()) {
-                    throw new IOException("Failed to download file: " + response);
-                }
-
-                FileOutputStream fos = new FileOutputStream(audioFile[0].getAbsolutePath() + ".flac");
-                fos.write(response.body().bytes());
-                fos.close();
-
-                SpeechToText service = new SpeechToText();
-                service.setUsernameAndPassword("01c5d2c9-dc25-4e04-8da7-79c72031f39d", "MmJvmy5GFzas");
-
-                File audioFileFlac = new File(audioFile[0].getAbsolutePath() + ".flac");
-
-                RecognizeOptions options = new RecognizeOptions.Builder()
-                        .audio(new File(audioFileFlac.getAbsolutePath()))
-                        .contentType(RecognizeOptions.ContentType.AUDIO_FLAC)
-                        .model(RecognizeOptions.Model.EN_US_NARROWBANDMODEL)
-                        .speakerLabels(true)
-                        .build();
-
-                SpeechRecognitionResults transcript = service.recognize(options).execute();
-
-                List<SpeechRecognitionResult> speechRecognitionResults = transcript.getResults();
-                List<SpeakerLabelsResult> speakerLabelsResult = transcript.getSpeakerLabels();
-
-                String rawTranscript = "";
-
-                JSONParser parser = new JSONParser();
-
-                Object obj = parser.parse(speechRecognitionResults.toString());
-
-                JSONArray jsonArray = (JSONArray) obj;
-
-                for (int i = 0; i < jsonArray.size(); i++) {
-
-                    JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-
-                    JSONObject jsonObject2 = (JSONObject) ((JSONArray) jsonObject.get("alternatives")).get(0);
-
-                    rawTranscript = rawTranscript + jsonObject2.get("transcript");
-
-                }
-
-                String[] words = rawTranscript.split(" ");
-
-                Object obj2 = parser.parse(speakerLabelsResult.toString());
-
-                JSONArray jsonArray2 = (JSONArray) obj2;
-
-                int[] speakerLabels = new int[jsonArray2.size()];
-
-                for (int i = 0; i < jsonArray2.size(); i++) {
-
-                    JSONObject jsonObject = (JSONObject) jsonArray2.get(i);
-
-                    speakerLabels[i] = Integer.parseInt(String.valueOf((jsonObject.get("speaker"))));
-
-                }
-
-                String pdfString = "Speaker " + speakerLabels[0] + ":";
-
-                for (int i = 0; i < words.length; i++) {
-
-                    pdfString = pdfString + " " + words[i];
-
-                    if (i < speakerLabels.length - 1 && speakerLabels[i] != speakerLabels[i + 1]) {
-                        pdfString = pdfString + "\nSpeaker " + speakerLabels[i + 1] + ":";
-                    }
-
-                }
-
-                pdfString = pdfString.replaceAll("%HESITATION", "(Hesitation)");
-
-                Document document = new Document();
-                PdfWriter.getInstance(document, new FileOutputStream(pdfFile));
-                document.open();
-                document.add(new Paragraph(pdfString));
-                document.close();
-
-                audioFileFlac.delete();
+                new File(audioFile[0].getAbsolutePath() + ".flac").delete();
 
             } catch(Exception e) {
                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
             return null;
+        }
+
+        /**
+         * Converts the audio file into base64.
+         * @param audioFile
+         * @return
+         * @throws IOException
+         */
+        private String convertAudioFileIntoBase64(File audioFile) throws IOException {
+
+            InputStream inputStream = new FileInputStream(audioFile.getAbsolutePath());
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            Base64OutputStream output64 = new Base64OutputStream(output, Base64.DEFAULT);
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                output64.write(buffer, 0, bytesRead);
+            }
+
+            output64.close();
+
+            return output.toString();
+
+        }
+
+        /**
+         * Converts the .m4a audio file into a .flac file.
+         * @param base64EncodedAudio
+         * @param audioFile
+         * @throws IOException
+         */
+        private void convertM4aToFlac(String base64EncodedAudio, File audioFile) throws IOException {
+
+            Map<String, Object> map = new HashMap<String, Object>();
+
+            map.put("apikey", "2AuF91XehuALjm7DSfootd210CTGp51XuGc2-5a0Sgswe2NGu7ta9s-r3jIamnrmGEDamlcVzvBY9HNq6WmGOA");
+            map.put("inputformat", "m4a");
+            map.put("outputformat", "flac");
+            map.put("input", "base64");
+            map.put("file", base64EncodedAudio);
+            map.put("filename", "1.m4a");
+            map.put("wait", true);
+            map.put("download", true);
+
+            String jsonBody = (new JSONObject(map)).toJSONString();
+
+            OkHttpClient client = new OkHttpClient();
+
+            MediaType jsonMediaType = MediaType.parse("application/json; charset=utf-8");
+
+            RequestBody requestBody = RequestBody.create(jsonMediaType, jsonBody);
+
+            Request request = new Request.Builder()
+                    .url("https://api.cloudconvert.com/convert")
+                    .post(requestBody)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if (!response.isSuccessful()) {
+                throw new IOException("Failed to download file: " + response);
+            }
+
+            FileOutputStream fos = new FileOutputStream(audioFile.getAbsolutePath() + ".flac");
+            fos.write(response.body().bytes());
+            fos.close();
+
+        }
+
+        /**
+         * Creates the raw transcript.
+         * @param audioFile
+         * @return
+         * @throws FileNotFoundException
+         * @throws ParseException
+         */
+        private String createRawTranscript(File audioFile) throws FileNotFoundException, ParseException {
+
+            SpeechToText service = new SpeechToText();
+            service.setUsernameAndPassword("01c5d2c9-dc25-4e04-8da7-79c72031f39d", "MmJvmy5GFzas");
+
+            File audioFileFlac = new File(audioFile.getAbsolutePath() + ".flac");
+
+            RecognizeOptions options = new RecognizeOptions.Builder()
+                    .audio(new File(audioFileFlac.getAbsolutePath()))
+                    .contentType(RecognizeOptions.ContentType.AUDIO_FLAC)
+                    .model(RecognizeOptions.Model.EN_US_NARROWBANDMODEL)
+                    .speakerLabels(true)
+                    .build();
+
+            SpeechRecognitionResults transcript = service.recognize(options).execute();
+
+            List<SpeechRecognitionResult> speechRecognitionResults = transcript.getResults();
+            speakerLabelsResult = transcript.getSpeakerLabels();
+
+            String rawTranscript = "";
+
+            JSONParser parser = new JSONParser();
+
+            Object obj = parser.parse(speechRecognitionResults.toString());
+
+            JSONArray jsonArray = (JSONArray) obj;
+
+            for (int i = 0; i < jsonArray.size(); i++) {
+
+                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+
+                JSONObject jsonObject2 = (JSONObject) ((JSONArray) jsonObject.get("alternatives")).get(0);
+
+                rawTranscript = rawTranscript + jsonObject2.get("transcript");
+
+            }
+
+            return rawTranscript;
+
+        }
+
+        /**
+         * Creates the pdf file.
+         * @param rawTranscript
+         * @throws DocumentException
+         * @throws FileNotFoundException
+         * @throws ParseException
+         */
+        private void createPDF(String rawTranscript) throws DocumentException, FileNotFoundException, ParseException {
+
+            String[] words = rawTranscript.split(" ");
+
+            JSONParser parser = new JSONParser();
+
+            Object obj = parser.parse(speakerLabelsResult.toString());
+
+            JSONArray jsonArray = (JSONArray) obj;
+
+            int[] speakerLabels = new int[jsonArray.size()];
+
+            for (int i = 0; i < jsonArray.size(); i++) {
+
+                JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+
+                speakerLabels[i] = Integer.parseInt(String.valueOf((jsonObject.get("speaker"))));
+
+            }
+
+            String pdfString = "Speaker " + speakerLabels[0] + ":";
+
+            for (int i = 0; i < words.length; i++) {
+
+                pdfString = pdfString + " " + words[i];
+
+                if (i < speakerLabels.length - 1 && speakerLabels[i] != speakerLabels[i + 1]) {
+                    pdfString = pdfString + "\nSpeaker " + speakerLabels[i + 1] + ":";
+                }
+
+            }
+
+            pdfString = pdfString.replaceAll("%HESITATION", "(Hesitation)");
+
+            Document document = new Document();
+            PdfWriter.getInstance(document, new FileOutputStream(pdfFile));
+            document.open();
+            document.add(new Paragraph(pdfString));
+            document.close();
+
         }
 
         /**
@@ -484,7 +545,7 @@ public class CallActivity extends AppCompatActivity {
     }
 
     /**
-     * Will be called when the user presses the back button or closes the app.
+     * Will be called when the user presses the back button or pauses the app.
      * This method has been overridden to make the transition look more smooth and because
      * the playback of the audio file needs to be stopped, if it is being played back.
      */
@@ -498,7 +559,7 @@ public class CallActivity extends AppCompatActivity {
     }
 
     /**
-     * To create the options menu, which will be needed to delete this call with its audio and pdf file.
+     * Needed to create the options menu, which will be needed to delete this call with its audio and pdf file.
      * @param menu
      * @return
      */

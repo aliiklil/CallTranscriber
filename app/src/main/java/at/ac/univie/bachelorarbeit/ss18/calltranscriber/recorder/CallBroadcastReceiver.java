@@ -35,10 +35,12 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
                         context.startService(new Intent(context, RecordService.class));
                         break;
                 }
+
             }
         };
+
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-    }
 
+    }
 }
